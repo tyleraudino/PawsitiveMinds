@@ -4,6 +4,7 @@ import 'goals.dart';
 import 'rewards.dart';
 import 'social.dart';
 
+
 void main() {
   runApp(MyApp());
 }
@@ -16,6 +17,20 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         colorSchemeSeed: const Color.fromRGBO(200, 215, 243, 1.0),
         canvasColor: const Color.fromRGBO(200, 215, 243, 1.0),
+        navigationBarTheme: NavigationBarThemeData(
+          indicatorColor: Colors.transparent, // Remove the indicator color
+          labelBehavior: NavigationDestinationLabelBehavior.alwaysHide, // Always hide the labels
+          iconTheme: MaterialStateProperty.resolveWith<IconThemeData>((states) {
+            if (states.contains(MaterialState.selected)) {
+              return const IconThemeData(
+                color: Colors.grey, // Set selected icon color to transparent
+              );
+            }
+            return const IconThemeData(
+              color: Colors.black, // Set unselected icon color
+            );
+          }),
+        ),
       ),
       home: MainPage(),
     );
