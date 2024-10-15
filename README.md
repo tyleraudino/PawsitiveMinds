@@ -1,4 +1,4 @@
-# flutter_application_1
+# Pawsitive Minds
 
 A new Flutter project.
 
