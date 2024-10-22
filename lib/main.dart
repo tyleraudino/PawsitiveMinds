@@ -3,7 +3,8 @@ import 'home.dart';
 import 'goals.dart';
 import 'rewards.dart';
 import 'social.dart';
-
+import 'opening.dart';
+import 'userprofile.dart';
 
 void main() {
   runApp(MyApp());
@@ -32,7 +33,7 @@ class MyApp extends StatelessWidget {
           }),
         ),
       ),
-      home: MainPage(),
+      home: OpeningPage(),
     );
   }
 }
@@ -52,6 +53,7 @@ class _MainPageState extends State<MainPage> {
     GoalsPage(),
     RewardsPage(),
     SocialPage(),
+    ProfilePage(),
   ];
 
   void _onItemTapped(int index) {
@@ -95,6 +97,10 @@ class _MainPageState extends State<MainPage> {
           NavigationDestination(
             icon: Icon(Icons.groups),
             label: "Social",
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.account_circle),
+            label: "My Account",
           )
         ],
         backgroundColor: const Color.fromRGBO(200, 215, 243, 1.0),
