@@ -3,8 +3,8 @@ import 'home.dart';
 import 'goals.dart';
 import 'rewards.dart';
 import 'social.dart';
-import 'opening.dart';
-import 'userprofile.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 
 void main() {
   runApp(MyApp());
@@ -19,21 +19,21 @@ class MyApp extends StatelessWidget {
         colorSchemeSeed: const Color.fromRGBO(200, 215, 243, 1.0),
         canvasColor: const Color.fromRGBO(200, 215, 243, 1.0),
         navigationBarTheme: NavigationBarThemeData(
-          indicatorColor: Colors.transparent, // Remove the indicator color
-          labelBehavior: NavigationDestinationLabelBehavior.alwaysHide, // Always hide the labels
+          indicatorColor: Colors.transparent,
+          labelBehavior: NavigationDestinationLabelBehavior.alwaysHide,
           iconTheme: MaterialStateProperty.resolveWith<IconThemeData>((states) {
             if (states.contains(MaterialState.selected)) {
               return const IconThemeData(
-                color: Colors.grey, // Set selected icon color to transparent
+                color: Colors.grey,
               );
             }
             return const IconThemeData(
-              color: Colors.black, // Set unselected icon color
+              color: Colors.black,
             );
           }),
         ),
       ),
-      home: OpeningPage(),
+      home: MainPage(),
     );
   }
 }
@@ -53,7 +53,6 @@ class _MainPageState extends State<MainPage> {
     GoalsPage(),
     RewardsPage(),
     SocialPage(),
-    ProfilePage(),
   ];
 
   void _onItemTapped(int index) {
@@ -97,10 +96,6 @@ class _MainPageState extends State<MainPage> {
           NavigationDestination(
             icon: Icon(Icons.groups),
             label: "Social",
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.account_circle),
-            label: "My Account",
           )
         ],
         backgroundColor: const Color.fromRGBO(200, 215, 243, 1.0),
