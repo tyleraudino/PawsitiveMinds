@@ -1,2 +1,3 @@
 fastapi[standard]
 motor
+argon2-cffi
