@@ -55,6 +55,7 @@ class _MainPageState extends State<MainPage> {
     GoalsPage(),
     RewardsPage(),
     SocialPage(),
+    ProfilePage(),
   ];
 
   void _onItemTapped(int index) {
