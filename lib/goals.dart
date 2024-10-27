@@ -7,12 +7,12 @@ import 'package:flutter/services.dart';
 class Goal {
   String title;
   String description;
-  // String recurrence = "Daily"; 
-  // DateTime endDate = DateTime(10000, 1, 1); // init end date to year 10000 for reminders with no end date
+  String recurrence; 
+  DateTime? endDate; // init end date to null for reminders with no end date
   // bool reminders = false;
   int points;
 
-  Goal({required this.title, required this.description, required this.points});
+  Goal({required this.title, required this.description, required this.points, this.recurrence = "Daily", this.endDate});
 }
 
 Future<void> createGoal(Goal goal) async {
@@ -139,6 +139,24 @@ class _EditGoalPageState extends State<EditGoalPage> {
   late TextEditingController titleController;
   late TextEditingController descriptionController;
   late TextEditingController pointsController;
+  String selectedFrequency = "Daily";
+  DateTime? endDate;
+
+  Widget buildFrequencyButton(String frequency) {
+    return ElevatedButton(
+      onPressed: () {
+        setState(() {
+          selectedFrequency = frequency;
+        });
+      },
+      style: ElevatedButton.styleFrom(
+        backgroundColor: selectedFrequency == frequency ? Color.fromRGBO(200, 215, 243, 1.0) : Colors.grey[300],
+        foregroundColor: Colors.black,
+      ),
+      child: Text(frequency),
+    );
+  }
+
 
   @override
   void initState() {
@@ -147,6 +165,8 @@ class _EditGoalPageState extends State<EditGoalPage> {
     titleController = TextEditingController(text: widget.goal?.title ?? '');
     descriptionController = TextEditingController(text: widget.goal?.description ?? '');
     pointsController = TextEditingController(text: widget.goal != null ? widget.goal!.points.toString() : '0',);
+    selectedFrequency = widget.goal?.recurrence ?? 'Daily';
+    endDate = widget.goal?.endDate;
   }
 
   @override
@@ -165,6 +185,8 @@ class _EditGoalPageState extends State<EditGoalPage> {
         title: titleController.text,
         description: descriptionController.text,
         points: points,
+        recurrence: selectedFrequency,
+        endDate: endDate
       ),
     );
   }
@@ -191,7 +213,50 @@ class _EditGoalPageState extends State<EditGoalPage> {
               inputFormatters: [FilteringTextInputFormatter.digitsOnly],
               decoration: InputDecoration(labelText: 'Points'),
             ),
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
+            Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                buildFrequencyButton('Daily'),
+                buildFrequencyButton('Monthly'),
+                buildFrequencyButton('Yearly'),
+                buildFrequencyButton('Other'),
+              ],),
+            const SizedBox(height: 20),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                ElevatedButton(
+                  onPressed: () async {
+                  DateTime? pickedDate = await showDatePicker(
+                    context: context,
+                    initialDate: widget.goal?.endDate ?? DateTime.now(),
+                    firstDate: DateTime.now(),
+                    lastDate: DateTime(2200),
+                  );
+                  setState(() {
+                    endDate = pickedDate;
+                  });
+                  },
+                  style: ElevatedButton.styleFrom(
+                  backgroundColor: endDate != null ? Color.fromRGBO(200, 215, 243, 1.0) : Colors.grey[300],
+                  foregroundColor: Colors.black,
+                  ),
+                  child: Text(endDate != null ? 'Ends: ${endDate!.toLocal().toString().split(' ')[0]}' : 'Select End Date'),
+                ),
+                ElevatedButton(
+                  onPressed: () {
+                    setState(() {
+                      endDate = null;
+                    });
+                  },
+                  style: ElevatedButton.styleFrom(
+                  backgroundColor: endDate == null ? Color.fromRGBO(200, 215, 243, 1.0) : Colors.grey[300],
+                  foregroundColor: Colors.black,
+                  ),
+                  child: Text('Never Ends'),
+              ),
+            ],),
+            const SizedBox(height: 20),
             ElevatedButton(
               onPressed: saveGoal,
               child: Text(widget.isEditing ? 'Save' : 'Create'),
