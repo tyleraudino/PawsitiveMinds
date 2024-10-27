@@ -9,11 +9,11 @@ class Goal {
   Goal({required this.title, required this.description});
 }
 
-Future<void> createGoal() async {
+Future<void> createGoal(Goal goal) async {
     final String apiUrl = 'http://127.0.0.1:8000/goals/'; // to be updated
     final Map<String, dynamic> goalData = {
-      'title': 'New Goal', // temp data
-      'description': 'Description of the new goal', // temp data
+      'title': goal.title, // temp data
+      'description': goal.description, // temp data
     };
 
     try {
@@ -91,11 +91,15 @@ class _GoalsPageState extends State<GoalsPage>  {
                     MaterialPageRoute(builder: (context) => EditGoalPage())
                 ).then((newGoal) {
                     if (newGoal != null) {
+                      //for debugging data
                       setState(() {
                         userGoals.add(newGoal);
                       });
+
+                      //for backend
+                      createGoal(newGoal);
                     }
-                    createGoal();
+                    
                   });
     
                 // open goal creation page here
