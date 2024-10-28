@@ -9,17 +9,27 @@ class Goal {
   String description;
   String recurrence; 
   DateTime? endDate; // init end date to null for reminders with no end date
-  // bool reminders = false;
+  bool reminders = false;
   int points;
 
   Goal({required this.title, required this.description, required this.points, this.recurrence = "Daily", this.endDate});
 }
 
+List<Goal> userGoals = [
+    //example data - will get from backend but implement later 
+    Goal(title: 'Meditate', description: 'Meditate 10 minutes every morning', points: 10),
+    Goal(title: 'Exercise', description: 'Exercise 5 times a week', points: 20),
+];
+
 Future<void> createGoal(Goal goal) async {
     final String apiUrl = 'http://127.0.0.1:8000/goals/'; // to be updated
     final Map<String, dynamic> goalData = {
-      'title': goal.title, // temp data
-      'description': goal.description, // temp data
+      'title': goal.title, 
+      'description': goal.description, 
+      'reccurence' : goal.recurrence,
+      'endDate' : goal.endDate,
+      'reminders' : goal.reminders,
+      'points' : goal.points,
     };
 
     try {
@@ -41,23 +51,37 @@ Future<void> createGoal(Goal goal) async {
     }
   }
 
+Future<void> deleteGoal(Goal? goal) async {
+  //function to delete goal from backend
+  // todo
+  if (goal != null){
+    final Map<String, dynamic> goalData = {
+          'title': goal.title, 
+          'description': goal.description, 
+          'reccurence' : goal.recurrence,
+          'endDate' : goal.endDate,
+          'reminders' : goal.reminders,
+          'points' : goal.points,
+    };
+  }
+
+  //do backend stuff here 
+
+  // for ui testing - delete after backend implemented
+  
+}
+
 class GoalsPage extends StatefulWidget {
   @override
   _GoalsPageState createState() => _GoalsPageState();
 }
 
 class _GoalsPageState extends State<GoalsPage>  {
-  List<Goal> userGoals = [
-    //example data - will get from backend but implement later 
-    Goal(title: 'Meditate', description: 'Meditate 10 minutes every morning', points: 10),
-    Goal(title: 'Exercise', description: 'Exercise 5 times a week', points: 20),
-  ];
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Your Goals'),
+        title: const Text('Your Goals'),
       ),
       body: ListView.builder(
         itemCount: userGoals.length,
@@ -66,7 +90,7 @@ class _GoalsPageState extends State<GoalsPage>  {
           return Card(
             child: ListTile(
               leading: IconButton(
-                icon: Icon(Icons.check_circle),
+                icon: const Icon(Icons.check_circle),
                 onPressed: () {
                   Navigator.push(
                     context,
@@ -78,7 +102,7 @@ class _GoalsPageState extends State<GoalsPage>  {
               title: Text(goal.title),
               subtitle: Text(goal.description),
               trailing: IconButton(
-                icon: Icon(Icons.edit),
+                icon: const Icon(Icons.edit),
                 onPressed: () {
                   Navigator.push(
                     context,
@@ -89,6 +113,11 @@ class _GoalsPageState extends State<GoalsPage>  {
                       if (updatedGoal != null) {
                         setState(() {
                           userGoals[index] = updatedGoal;
+                        });
+                      }else{
+                        // to handle updating
+                        setState(() {
+                            userGoals.removeAt(index);
                         });
                       }
                     });
@@ -110,16 +139,13 @@ class _GoalsPageState extends State<GoalsPage>  {
                       setState(() {
                         userGoals.add(newGoal);
                       });
-
                       //for backend
                       createGoal(newGoal);
-                    }
-                    
+                    }        
                   });
-    
                 // open goal creation page here
               },
-              child: Text('+'),
+              child: const Text('+'),
             ),
     );
   }
@@ -150,13 +176,12 @@ class _EditGoalPageState extends State<EditGoalPage> {
         });
       },
       style: ElevatedButton.styleFrom(
-        backgroundColor: selectedFrequency == frequency ? Color.fromRGBO(200, 215, 243, 1.0) : Colors.grey[300],
+        backgroundColor: selectedFrequency == frequency ? const Color.fromRGBO(200, 215, 243, 1.0) : Colors.grey[300],
         foregroundColor: Colors.black,
       ),
       child: Text(frequency),
     );
   }
-
 
   @override
   void initState() {
@@ -191,34 +216,59 @@ class _EditGoalPageState extends State<EditGoalPage> {
     );
   }
 
+  void confirmDeleteGoal() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Delete Goal'),
+        content: const Text('Are you sure you want to delete this goal?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(), // Dismiss dialog
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop(); // Dismiss dialog
+              deleteGoal(widget.goal); // Call the delete function
+              Navigator.of(context).pop(null); // go to goals page
+            },
+            style: TextButton.styleFrom(backgroundColor: const Color.fromRGBO(222, 144, 144, 1)),
+            child: const Text('Delete'),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar( title: Text(widget.isEditing ? 'Edit Goal' : 'Create Goal'),),
       body: Padding(
-        padding: EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(16.0),
         child: Column(
           children: [
             TextField(
               controller: titleController,
-              decoration: InputDecoration(labelText: 'Title'),
+              decoration: const InputDecoration(labelText: 'Title'),
             ),
             TextField(
               controller: descriptionController,
-              decoration: InputDecoration(labelText: 'Description'),
+              decoration: const InputDecoration(labelText: 'Description'),
             ),
             TextField(
               controller: pointsController,
               keyboardType: TextInputType.number,
               inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-              decoration: InputDecoration(labelText: 'Points'),
+              decoration: const InputDecoration(labelText: 'Points'),
             ),
             const SizedBox(height: 20),
             Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
                 buildFrequencyButton('Daily'),
+                buildFrequencyButton('Weekly'),
                 buildFrequencyButton('Monthly'),
-                buildFrequencyButton('Yearly'),
                 buildFrequencyButton('Other'),
               ],),
             const SizedBox(height: 20),
@@ -238,7 +288,7 @@ class _EditGoalPageState extends State<EditGoalPage> {
                   });
                   },
                   style: ElevatedButton.styleFrom(
-                  backgroundColor: endDate != null ? Color.fromRGBO(200, 215, 243, 1.0) : Colors.grey[300],
+                  backgroundColor: endDate != null ? const Color.fromRGBO(200, 215, 243, 1.0) : Colors.grey[300],
                   foregroundColor: Colors.black,
                   ),
                   child: Text(endDate != null ? 'Ends: ${endDate!.toLocal().toString().split(' ')[0]}' : 'Select End Date'),
@@ -250,17 +300,25 @@ class _EditGoalPageState extends State<EditGoalPage> {
                     });
                   },
                   style: ElevatedButton.styleFrom(
-                  backgroundColor: endDate == null ? Color.fromRGBO(200, 215, 243, 1.0) : Colors.grey[300],
+                  backgroundColor: endDate == null ? const Color.fromRGBO(200, 215, 243, 1.0) : Colors.grey[300],
                   foregroundColor: Colors.black,
                   ),
-                  child: Text('Never Ends'),
+                  child: const Text('Never Ends'),
               ),
             ],),
             const SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: saveGoal,
-              child: Text(widget.isEditing ? 'Save' : 'Create'),
-            ),
+            Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                ElevatedButton(
+                  onPressed: saveGoal,
+                  child: Text(widget.isEditing ? 'Save' : 'Create'),
+                ),
+                if(widget.isEditing && (widget.goal != null ))
+                  ElevatedButton(
+                  onPressed: confirmDeleteGoal, 
+                  child: Text(widget.isEditing ? 'Delete' : 'Cancel'))
+             ])
+            
           ],
         ),
       ),
@@ -300,17 +358,17 @@ class _CompleteGoalPageState extends State<CompleteGoalPage> {
     return Scaffold(
       appBar: AppBar(),
       body: Padding(
-        padding: EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(16.0),
         child: Column(
           children: [
             TextField(
               controller: journalController,
-              decoration: InputDecoration(labelText: 'Title'),
+              decoration: const InputDecoration(labelText: 'Title'),
             ),
             SizedBox(height: 20),
             ElevatedButton(
               onPressed: saveCompletion,
-              child: Text("Complete Goal"),
+              child: const Text("Complete Goal"),
             ),
           ],
         ),
