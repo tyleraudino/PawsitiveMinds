@@ -167,6 +167,7 @@ class _EditGoalPageState extends State<EditGoalPage> {
   late TextEditingController pointsController;
   String selectedFrequency = "Daily";
   DateTime? endDate;
+  bool reminders = false;
 
   Widget buildFrequencyButton(String frequency) {
     return ElevatedButton(
@@ -271,6 +272,8 @@ class _EditGoalPageState extends State<EditGoalPage> {
                 buildFrequencyButton('Monthly'),
                 buildFrequencyButton('Other'),
               ],),
+            const SizedBox(height: 20),
+            
             const SizedBox(height: 20),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
