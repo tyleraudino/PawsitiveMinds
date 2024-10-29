@@ -27,7 +27,7 @@ Future<void> createGoal(Goal goal) async {
       'title': goal.title, 
       'description': goal.description, 
       'reccurence' : goal.recurrence,
-      'endDate' : goal.endDate,
+      // 'endDate' : goal.endDate, - need to figure how to encode this
       'reminders' : goal.reminders,
       'points' : goal.points,
     };
@@ -110,11 +110,11 @@ class _GoalsPageState extends State<GoalsPage>  {
                       builder: (context) => EditGoalPage(goal: goal, isEditing: true),
                     ),
                   ).then((updatedGoal) {
-                      if (updatedGoal != null) {
+                      if (updatedGoal != null && updatedGoal != false) {
                         setState(() {
                           userGoals[index] = updatedGoal;
                         });
-                      }else{
+                      }else if (updatedGoal == false){
                         // to handle updating
                         setState(() {
                             userGoals.removeAt(index);
@@ -232,7 +232,7 @@ class _EditGoalPageState extends State<EditGoalPage> {
             onPressed: () {
               Navigator.of(context).pop(); // Dismiss dialog
               deleteGoal(widget.goal); // Call the delete function
-              Navigator.of(context).pop(null); // go to goals page
+              Navigator.of(context).pop(false); // go to goals page
             },
             style: TextButton.styleFrom(backgroundColor: const Color.fromRGBO(222, 144, 144, 1)),
             child: const Text('Delete'),
