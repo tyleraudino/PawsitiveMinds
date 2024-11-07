@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'user_provider.dart';
 import 'home.dart';
-import 'goals.dart';
+import 'goal_ui.dart';
 import 'rewards.dart';
 import 'social.dart';
 import 'opening.dart';
@@ -8,11 +10,16 @@ import 'dart:convert';
 import "userprofile.dart";
 import 'package:http/http.dart' as http;
 import 'package:google_fonts/google_fonts.dart';
+import 'user_class.dart';
 
 void main() {
-  runApp(MyApp());
+  runApp(
+    ChangeNotifierProvider(
+      create: (context) => UserProvider(),
+      child: MyApp(),
+    ),
+  );
 }
-
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
