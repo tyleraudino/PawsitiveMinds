@@ -7,6 +7,7 @@ import 'opening.dart';
 import 'dart:convert';
 import "userprofile.dart";
 import 'package:http/http.dart' as http;
+import 'package:google_fonts/google_fonts.dart';
 
 void main() {
   runApp(MyApp());
@@ -23,8 +24,8 @@ class MyApp extends StatelessWidget {
         navigationBarTheme: NavigationBarThemeData(
           indicatorColor: Colors.transparent, // Remove the indicator color
           labelBehavior: NavigationDestinationLabelBehavior.alwaysHide, // Always hide the labels
-          iconTheme: MaterialStateProperty.resolveWith<IconThemeData>((states) {
-            if (states.contains(MaterialState.selected)) {
+          iconTheme: WidgetStateProperty.resolveWith<IconThemeData>((states) {
+            if (states.contains(WidgetState.selected)) {
               return const IconThemeData(
                 color: Colors.grey, // Set selected icon color to transparent
               );
@@ -33,6 +34,20 @@ class MyApp extends StatelessWidget {
               color: Colors.black, // Set unselected icon color
             );
           }),
+        ),
+        textTheme: GoogleFonts.montserratTextTheme(),
+        elevatedButtonTheme: ElevatedButtonThemeData(
+          style: ElevatedButton.styleFrom(
+            backgroundColor: const Color.fromRGBO(200, 215, 243, 1.0),
+            foregroundColor: Colors.black,
+            elevation: 0.0,
+            shadowColor: Colors.transparent
+          )
+        ),
+        floatingActionButtonTheme: const FloatingActionButtonThemeData(
+          backgroundColor: Color.fromRGBO(255, 198, 163, 1),
+          elevation: 0.0,
+          
         ),
       ),
      home: OpeningPage(),
