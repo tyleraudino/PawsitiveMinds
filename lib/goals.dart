@@ -92,8 +92,8 @@ class Goal {
 
 List<Goal> userGoals = [
     //example data - will get from backend but implement later 
-    Goal(title: 'Meditate', description: 'Meditate 10 minutes every morning', points: 10),
-    Goal(title: 'Exercise', description: 'Exercise 5 times a week', points: 20),
+    //Goal(title: 'Meditate', description: 'Meditate 10 minutes every morning', points: 10),
+    //Goal(title: 'Exercise', description: 'Exercise 5 times a week', points: 20),
 ];
 
 List<Goal> sortGoalsByNextDueDate(List<Goal> goals) {
@@ -149,7 +149,7 @@ Widget buildGoalListView(List<Goal> goals, void Function(void Function()) setSta
             padding: const EdgeInsets.all(8.0),
             child: Text(
               dueStatus,
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
           ),
           ...goalsForStatus.map((goal) {
