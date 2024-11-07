@@ -52,7 +52,7 @@ class MyApp extends StatelessWidget {
           )
         ),
         floatingActionButtonTheme: const FloatingActionButtonThemeData(
-          backgroundColor: Color.fromRGBO(255, 198, 163, 1),
+          backgroundColor: Color.fromARGB(255, 248, 213, 190),
           elevation: 0.0,
           
         ),

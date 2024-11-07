@@ -7,7 +7,7 @@ String lastname;
 int points;
 List<Goal> userGoals = [
     //example data - will get from backend but implement later 
-    Goal(title: 'Meditate', description: 'Meditate 10 minutes every morning', points: 10),
+    Goal(title: 'Meditate', description: 'Meditate 10 minutes every morning', points: 10, recurrence: "Weekly"),
     Goal(title: 'Exercise', description: 'Exercise 5 times a week', points: 20),
 ];
 
