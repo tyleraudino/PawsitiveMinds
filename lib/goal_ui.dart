@@ -2,135 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:flutter/services.dart';
-
-
-
-class Goal {
-  String title;
-  String description;
-  String recurrence; 
-  int recurrenceInterval; // for custom recurrence
-  DateTime? endDate; // init end date to null for reminders with no end date
-  DateTime? lastCompleted;
-  List<DateTime> completionDates = [];
-  bool reminders = false;
-  int points;
-
-  Goal({required this.title, required this.description, required this.points, this.recurrence = "Daily", this.recurrenceInterval = 1, this.endDate});
-
-  void completeGoal(){
-    DateTime now = DateTime.now();
-    lastCompleted = now;
-    completionDates.add(now);
-    //potentially add completion details like a journal here later
-  }
-
-  void undoCompleteGoal(){
-    if (completionDates.length == 1){
-      lastCompleted = null;
-    } else {
-      lastCompleted = completionDates[completionDates.length - 1];
-    }
-    completionDates.removeLast();
-  }
-
-  DateTime calculateNextDueDate() {
-    DateTime nextDueDate;
-    DateTime referenceDate = lastCompleted ?? DateTime.now();
-
-    switch (recurrence) {
-      case "Daily":
-        nextDueDate = referenceDate.add(Duration(days: recurrenceInterval));
-        while (nextDueDate.isBefore(DateTime.now())) {
-          nextDueDate = nextDueDate.add(Duration(days: recurrenceInterval));
-        }
-        break;
-
-      case "Weekly":
-        nextDueDate = referenceDate.add(Duration(days: 7 * recurrenceInterval));
-        while (nextDueDate.isBefore(DateTime.now())) {
-          nextDueDate = nextDueDate.add(Duration(days: 7 * recurrenceInterval));
-        }
-        break;
-
-      case "Monthly":
-        nextDueDate = DateTime(referenceDate.year, referenceDate.month + recurrenceInterval, referenceDate.day);
-        while (nextDueDate.isBefore(DateTime.now())) {
-          nextDueDate = DateTime(nextDueDate.year, nextDueDate.month + recurrenceInterval, nextDueDate.day);
-        }
-        break;
-
-      case "Other":
-        nextDueDate = referenceDate.add(Duration(days: recurrenceInterval));
-        while (nextDueDate.isBefore(DateTime.now())) {
-          nextDueDate = nextDueDate.add(Duration(days: recurrenceInterval));
-        }
-        break;
-
-      default:
-        throw Exception("Invalid recurrence type");
-    }
-
-    if (endDate != null && nextDueDate.isAfter(endDate!)) {
-      throw Exception("Next due date is beyond the end date");
-    }
-
-    return nextDueDate;
-  }
-
-  bool checkIfCompleted(){
-    bool completed = false;
-
-    //check if last completed date = today
-    if (lastCompleted?.day == DateTime.now().day){
-      completed = true;
-    }
-
-    return completed;
-  }
-}
-
-List<Goal> userGoals = [
-    //example data - will get from backend but implement later 
-    //Goal(title: 'Meditate', description: 'Meditate 10 minutes every morning', points: 10),
-    //Goal(title: 'Exercise', description: 'Exercise 5 times a week', points: 20),
-];
-
-List<Goal> sortGoalsByNextDueDate(List<Goal> goals) {
-  goals.sort((a, b) => a.calculateNextDueDate().compareTo(b.calculateNextDueDate()));
-  return goals;
-}
-
-String getDueStatus(DateTime nextDueDate) {
-  final now = DateTime.now();
-  final today = DateTime(now.year, now.month, now.day);
-  final tomorrow = today.add(Duration(days: 1));
-  final difference = nextDueDate.difference(today).inDays;
-
-  if (difference == 0) {
-    return "Due today";
-  } else if (difference == 1) {
-    return "Due tomorrow";
-  } else if (difference < 0) {
-    return "Overdue";
-  } else {
-    return "Due in $difference days";
-  }
-}
-
-Map<String, List<Goal>> groupGoalsByDueStatus(List<Goal> goals) {
-  final Map<String, List<Goal>> groupedGoals = {};
-
-  for (var goal in goals) {
-    final dueStatus = getDueStatus(goal.calculateNextDueDate());
-    if (!groupedGoals.containsKey(dueStatus)) {
-      groupedGoals[dueStatus] = [];
-    }
-    groupedGoals[dueStatus]!.add(goal);
-  }
-
-  return groupedGoals;
-}
+import 'goal_class.dart';
+import 'user_class.dart';
+import 'package:provider/provider.dart';
+import 'user_provider.dart';
 
 Widget buildGoalListView(List<Goal> goals, void Function(void Function()) setStateCallback) {
   final groupedGoals = groupGoalsByDueStatus(goals);
@@ -264,37 +139,39 @@ class GoalsPage extends StatefulWidget {
 class _GoalsPageState extends State<GoalsPage>  {
   @override
   Widget build(BuildContext context) {
-    List<Goal> sortedGoals = sortGoalsByNextDueDate(userGoals);
-
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Your Goals'),
-      ),
-      body: userGoals.isEmpty
-        ? const Center(
-              child: Text('You currently have no goals. Click the + icon to add one!', textAlign: TextAlign.center),
-            )
-        : buildGoalListView(sortedGoals, (fn) => setState(fn)),
-    floatingActionButton: FloatingActionButton(
-              onPressed: () { 
-                Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => EditGoalPage())
-                ).then((newGoal) {
-                    if (newGoal != null) {
-                      //for debugging data
-                      setState(() {
-                        userGoals.add(newGoal);
-                      });
-                      //for backend
-                      createGoal(newGoal);
-                    }        
-                  });
-                // open goal creation page here
-              },
-              child: const Text('+'),
-            ),
-    );
+    return Consumer<UserProvider>(
+      builder: (context, userProvider, child) {
+        List<Goal> sortedGoals = sortGoalsByNextDueDate(userProvider.user.userGoals);
+      return Scaffold(
+        appBar: AppBar(
+          title: const Text('Your Goals'),
+        ),
+        body: userProvider.user.userGoals.isEmpty
+          ? const Center(
+                child: Text('You currently have no goals. Click the + icon to add one!', textAlign: TextAlign.center),
+              )
+          : buildGoalListView(sortedGoals, (fn) => setState(fn)),
+      floatingActionButton: FloatingActionButton(
+                onPressed: () { 
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => EditGoalPage())
+                  ).then((newGoal) {
+                      if (newGoal != null) {
+                        //for debugging data
+                        setState(() {
+                          userProvider.user.userGoals.add(newGoal);
+                        });
+                        //for backend
+                        createGoal(newGoal);
+                      }        
+                    });
+                  // open goal creation page here
+                },
+                child: const Text('+'),
+              ),
+      );
+    });
   }
 }
 
@@ -380,7 +257,7 @@ class _EditGoalPageState extends State<EditGoalPage> {
               deleteGoal(widget.goal); // Call the delete function
               Navigator.of(context).pop(false); // go to goals page
             },
-            style: TextButton.styleFrom(foregroundColor: const Color(0x00000000) , backgroundColor: const Color.fromRGBO(222, 144, 144, 1)),
+            style: TextButton.styleFrom(foregroundColor: Color.fromARGB(255, 0, 0, 0), backgroundColor: const Color.fromRGBO(222, 144, 144, 1)),
             child: const Text('Delete'),
           ),
         ],
