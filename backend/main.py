@@ -1,6 +1,7 @@
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
+from bson import ObjectId
 import motor.motor_asyncio
 
 app = FastAPI()
@@ -58,3 +59,20 @@ async def create_goal(goal: Goal):
         return {"message": "Goal created successfully!", "goal_id": str(result.inserted_id)}
     else:
         raise HTTPException(status_code=400, detail="Goal creation failed")
+    
+# post request to delete a goal
+@app.delete("/goals/{goal_id}")
+async def delete_goal(goal_id: str):
+    try:
+        object_id = ObjectId(goal_id) # converts goal_id to MongoDB's ObjectID
+        print(f"Converted goal_id to ObjectId: {object_id}")
+    except Exception as e:
+        print(f"Invalid ObjectId for goal_id: {goal_id}, error: {e}")
+        raise HTTPException(status_code=400, detail="Invalid goal ID format")
+    # attempts to delete the document by ID
+    result = await collection.delete_one({"_id": object_id})
+    print(f"Deletion result for goal_id {goal_id}: {result.deleted_count}")
+    if result.deleted_count == 1:
+        return {"message": "Goal deleted successfully!"} # expected result
+    else:
+        raise HTTPException(status_code=404, detail="Goal not found.")

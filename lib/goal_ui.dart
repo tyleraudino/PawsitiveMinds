@@ -101,8 +101,12 @@ Future<void> createGoal(Goal goal) async {
         body: json.encode(goalData),
       );
 
-      if (response.statusCode == 200) { // checks for 201 Created
+      if (response.statusCode == 200) { // checks for 201 created
         print('Goal created successfully: ${response.body}');
+        final responseData = json.decode(response.body);
+        final String goalId = responseData['goal_id'];  
+        goal.id = goalId; // sets goal object's id after mongo creates one
+        print('Goal created successfully with ID: $goalId');
       } else {
         print('Failed to create goal: ${response.statusCode}');
       }
@@ -113,7 +117,6 @@ Future<void> createGoal(Goal goal) async {
 
 Future<void> deleteGoal(Goal? goal) async {
   //function to delete goal from backend
-  // todo
   if (goal != null){
     final Map<String, dynamic> goalData = {
           'title': goal.title, 
@@ -124,11 +127,24 @@ Future<void> deleteGoal(Goal? goal) async {
           'points' : goal.points,
     };
   }
-
   //do backend stuff here 
+  if (goal == null) {
+    print("Goal is null. Cannot delete.");
+    return;
+  }
+  final String apiUrl = 'http://127.0.0.1:8000/goals/${goal.id}'; 
 
-  // for ui testing - delete after backend implemented
-  
+  try {
+    final response = await http.delete(
+      Uri.parse(apiUrl),
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    );
+  } catch (e) {
+    print('Error: $e');
+  }
+
 }
 
 class GoalsPage extends StatefulWidget {
