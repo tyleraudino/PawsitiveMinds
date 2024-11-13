@@ -1,4 +1,5 @@
 class Goal {
+  String? id;
   String title;
   String description;
   String recurrence; 
@@ -9,7 +10,7 @@ class Goal {
   bool reminders = false;
   int points;
 
-  Goal({required this.title, required this.description, required this.points, this.recurrence = "Daily", this.recurrenceInterval = 1, this.endDate});
+  Goal({this.id, required this.title, required this.description, required this.points, this.recurrence = "Daily", this.recurrenceInterval = 1, this.endDate});
 
   void completeGoal(){
     DateTime now = DateTime.now();
