@@ -1,3 +1,4 @@
+from typing import Optional
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
@@ -20,15 +21,24 @@ client = motor.motor_asyncio.AsyncIOMotorClient("mongodb://localhost:27017/")
 db = client["your_database"]
 collection = db["your_collection"]
 
-# pydantic model for item data
+# pydantic models
+# ---------------
+
+# for item data
+
 class Item(BaseModel):
     name: str
     description: str
 
-# pydantic model for goal data
+# for goal data
 class Goal(BaseModel):
     title: str
     description: str
+
+# for updating goals
+class UpdateGoal(BaseModel):
+    title: Optional[str] = None
+    description: Optional[str] = None
 
 # get request to fetch all goals
 @app.get("/goals/")
@@ -76,3 +86,23 @@ async def delete_goal(goal_id: str):
         return {"message": "Goal deleted successfully!"} # expected result
     else:
         raise HTTPException(status_code=404, detail="Goal not found.")
+    
+# request to modify goals
+@app.put("/goals/{goal_id}")
+async def update_goal(goal_id: str, goal: UpdateGoal):
+    try:
+        object_id = ObjectId(goal_id)  # Convert goal_id to ObjectId
+    except Exception:
+        raise HTTPException(status_code=400, detail="Invalid goal ID format")
+
+    # Create dictionary of updates, excluding None values
+    updated_data = {k: v for k, v in goal.dict().items() if v is not None}
+
+    if updated_data:
+        result = await collection.update_one({"_id": object_id}, {"$set": updated_data})
+        if result.modified_count == 1:
+            return {"message": "Goal updated successfully!"}
+        else:
+            raise HTTPException(status_code=404, detail="Goal not found or no changes made")
+    else:
+        raise HTTPException(status_code=400, detail="No valid fields provided for update")
