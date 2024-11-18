@@ -1,13 +1,14 @@
 import datetime
 from typing import Optional, Annotated
+
+import argon2
+import jwt
+import motor.motor_asyncio
+from bson import ObjectId
 from fastapi import FastAPI, HTTPException, Depends, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security.utils import get_authorization_scheme_param
 from pydantic import BaseModel
-from bson import ObjectId
-import motor.motor_asyncio
-import argon2
-import jwt
 
 ph = argon2.PasswordHasher()
 app = FastAPI()
