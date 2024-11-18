@@ -47,3 +47,25 @@ After registering/logging in, you must include the token in the *header* of all 
 {
     "Authorization": "Bearer YOUR_TOKEN"
 }
+```
+
+## Changing Password
+
+To change your password, send a POST request to the `/user/change_password` endpoint with the following JSON:
+
+```json
+{
+    "new_password": "YOUR_NEW_PASSWORD"
+}
+```
+
+Meanwhile, the token should be included in the header of the request.
+```json
+{
+    "Authorization": "Bearer YOUR_TOKEN"
+}
+```
+
+## Deleting User
+
+To delete the currently logged in user, send a DELETE request to the `/user/delete` endpoint. The token should be included in the header of the request.

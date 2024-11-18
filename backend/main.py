@@ -1,7 +1,8 @@
-from typing import Optional
 import datetime
-from fastapi import FastAPI, HTTPException
+from typing import Optional, Annotated
+from fastapi import FastAPI, HTTPException, Depends, Request
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.security.utils import get_authorization_scheme_param
 from pydantic import BaseModel
 from bson import ObjectId
 import motor.motor_asyncio
@@ -49,6 +50,15 @@ class User(BaseModel):
     user_id: str
     password: str
 
+# for updating password
+class UpdatePassword(BaseModel):
+    new_password: str
+
+# for user token
+class UserToken(BaseModel):
+    user_id: str
+    expires_in: datetime.datetime
+
 # for updating goals
 class UpdateGoal(BaseModel):
     title: Optional[str] = None
@@ -58,10 +68,37 @@ class UpdateGoal(BaseModel):
 def generate_jwt(user_id: str) -> str:
     to_encode = {
         "user_id": user_id,
-        "expires_in": (datetime.datetime.now(datetime.UTC) + datetime.timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)).isoformat()
+        "expires_in": (datetime.datetime.now(datetime.timezone.utc) + datetime.timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)).isoformat()
     }
     encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
     return encoded_jwt
+
+
+# from fastapi itself
+async def oauth2_scheme(request: Request) -> Optional[str]:
+    authorization = request.headers.get("Authorization")
+    scheme, param = get_authorization_scheme_param(authorization)
+    if not authorization or scheme.lower() != "bearer":
+        raise HTTPException(
+            status_code=401,
+            detail="Not authenticated",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    return param
+    
+
+def decode_jwt(token: Annotated[str, Depends(oauth2_scheme)]) -> UserToken:
+    try:
+        decoded_token = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        return UserToken.model_validate(decoded_token)
+    except jwt.ExpiredSignatureError:
+        raise HTTPException(status_code=401, detail="Token has expired")
+    except jwt.InvalidTokenError:
+        raise HTTPException(status_code=401, detail="Invalid token")
+
+
+# use this whenever you want to get the current user
+UserDep = Annotated[UserToken, Depends(decode_jwt)]
 
 # registers user
 @app.post("/user/register")
@@ -92,6 +129,30 @@ async def login_user(user: User):
         await collection.update_one({"_id": user_data["_id"]}, {"$set": {"password": user_data["password"]}})
     
     return {"message": "Login successful!", "token": generate_jwt(user.user_id)}
+
+
+# change password
+@app.post("/user/change_password")
+async def change_password(user: UserDep, data: UpdatePassword):
+    user_data = await collection.find_one({"user_id": user.user_id})
+    if not user_data:
+        raise HTTPException(status_code=400, detail="User not found")
+    
+    user_data["password"] = ph.hash(data.new_password)
+    await collection.update_one({"_id": user_data["_id"]}, {"$set": {"password": user_data["password"]}})
+    return {"message": "Password changed successfully!"}
+
+
+# delete user
+@app.delete("/user/delete")
+async def delete_user(user: UserDep):
+    user_data = await collection.find_one({"user_id": user.user_id})
+    if not user_data:
+        raise HTTPException(status_code=400, detail="User not found")
+    
+    await collection.delete_one({"_id": user_data["_id"]})
+    return {"message": "User deleted successfully!"}
+
 
 # get request to fetch all goals
 @app.get("/goals/")
