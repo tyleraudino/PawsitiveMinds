@@ -1,14 +1,8 @@
 import 'package:flutter/material.dart';
-import 'opening.dart'; 
+import 'opening.dart';
 
-class ProfilePage extends StatefulWidget {
+class ProfilePage extends StatelessWidget {
   const ProfilePage({super.key});
-
-  @override
-  _ProfilePageState createState() => _ProfilePageState();
-}
-
-class _ProfilePageState extends State<ProfilePage> {
 
   @override
   Widget build(BuildContext context) {
@@ -21,16 +15,75 @@ class _ProfilePageState extends State<ProfilePage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: () {
-                  // Navigate to MainPage on Login button press
+            Center(
+              // https://stackoverflow.com/questions/51556356/how-to-display-animated-gif-in-flutter
+              child: Image.asset(
+                'assets/profilecat.gif',
+                width: 250,
+                height: 250,
+                fit: BoxFit.contain,
+              ),
+            ),
+            const SizedBox(height: 32),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Column(
+                  children: [
+                    const SizedBox(height: 16),
+                    Text('Email: [email]'),
+                    const SizedBox(height: 16),
+                    Text('Username: [username]'),
+                  ],
+                ),
+                const SizedBox(width: 40),
+                Column(
+                  children: [
+                    const SizedBox(height: 16),
+                    ElevatedButton(
+                      onPressed: () {
+                        Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(builder: (context) => OpeningPage()),
+                        );
+                      },
+                      child: const Text('Change Email'),
+                    ),
+                    const SizedBox(height: 16),
+                    ElevatedButton(
+                      onPressed: () {
+                        Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(builder: (context) => OpeningPage()),
+                        );
+                      },
+                      child: const Text('Change Username'),
+                    ),
+                    const SizedBox(height: 16),
+                    ElevatedButton(
+                      onPressed: () {
+                        Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(builder: (context) => OpeningPage()),
+                        );
+                      },
+                      child: const Text('Change Password'),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+            const SizedBox(height: 32),
+            Center(
+              child: ElevatedButton(
+                onPressed: () {
                   Navigator.pushReplacement(
                     context,
                     MaterialPageRoute(builder: (context) => OpeningPage()),
                   );
                 },
-              child: Text('Log Out'),
+                child: const Text('Log Out'),
+              ),
             ),
           ],
         ),
