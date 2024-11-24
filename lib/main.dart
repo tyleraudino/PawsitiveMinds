@@ -4,7 +4,6 @@ import 'user_provider.dart';
 import 'home.dart';
 import 'goal_ui.dart';
 import 'rewards.dart';
-import 'social.dart';
 import 'opening.dart';
 import 'dart:convert';
 import "userprofile.dart";
@@ -76,7 +75,6 @@ class _MainPageState extends State<MainPage> {
     HomePage(),
     GoalsPage(),
     RewardsPage(),
-    SocialPage(),
     ProfilePage(),
   ];
 
@@ -118,10 +116,6 @@ class _MainPageState extends State<MainPage> {
             icon: Icon(Icons.pets),
             label: "Rewards",
           ),
-          NavigationDestination(
-            icon: Icon(Icons.groups),
-            label: "Social",
-             ),
           NavigationDestination(
             icon: Icon(Icons.account_circle),
             label: "My Account",
