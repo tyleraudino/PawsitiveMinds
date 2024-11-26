@@ -86,43 +86,45 @@ class _MainPageState extends State<MainPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        backgroundColor: const Color.fromRGBO(200, 215, 243, 1.0),
-        title: Icon(Icons.pets, size: 50),
-        leading: Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Image.asset(
-            'assets/profilepic.jpeg',
-            fit: BoxFit.contain,
+    return Consumer<UserProvider>(
+      builder: (context, userProvider, child) {
+      return Scaffold(
+        appBar: AppBar(
+          backgroundColor: const Color.fromRGBO(200, 215, 243, 1.0),
+          title: Icon(Icons.pets, size: 50),
+          leading: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: CircleAvatar(
+              child: Text(userProvider.user.getInitials()),
+            )
           ),
         ),
-      ),
-    
-      body: _pages[_currentPageIndex],
-      bottomNavigationBar: NavigationBar(
-        selectedIndex: _currentPageIndex,
-        onDestinationSelected: _onItemTapped,
-        destinations: const <NavigationDestination>[
-          NavigationDestination(
-            icon: Icon(Icons.home),
-            label: "Home",
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.check_circle_outline),
-            label: "Goals",
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.pets),
-            label: "Rewards",
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.account_circle),
-            label: "My Account",
-          )
-        ],
-        backgroundColor: const Color.fromRGBO(200, 215, 243, 1.0),
-      ),
-    );
-  }
+      
+        body: _pages[_currentPageIndex],
+        bottomNavigationBar: NavigationBar(
+          selectedIndex: _currentPageIndex,
+          onDestinationSelected: _onItemTapped,
+          destinations: const <NavigationDestination>[
+            NavigationDestination(
+              icon: Icon(Icons.home),
+              label: "Home",
+            ),
+            NavigationDestination(
+              icon: Icon(Icons.check_circle_outline),
+              label: "Goals",
+            ),
+            NavigationDestination(
+              icon: Icon(Icons.pets),
+              label: "Rewards",
+            ),
+            NavigationDestination(
+              icon: Icon(Icons.account_circle),
+              label: "My Account",
+            )
+          ],
+          backgroundColor: const Color.fromRGBO(200, 215, 243, 1.0),
+        ),
+      );
+    }
+    );}
 }
