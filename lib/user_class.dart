@@ -4,6 +4,7 @@ class User {
 String username;
 String firstname;
 String lastname;
+String token;
 int points;
 List<Goal> userGoals = [
     //example data - will get from backend but implement later 
@@ -11,5 +12,5 @@ List<Goal> userGoals = [
     Goal(title: 'Exercise', description: 'Exercise 5 times a week', points: 20),
 ];
 
-User({required this.username, required this.firstname, required this.lastname, this.points = 0,});
+User({required this.username, required this.firstname, required this.lastname, this.token = '', this.points = 0,});
 }
