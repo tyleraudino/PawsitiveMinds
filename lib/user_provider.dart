@@ -5,22 +5,35 @@ class UserProvider with ChangeNotifier {
   User _user = User(
     username: 'default',
     firstname: 'John',
-    lastname: 'Doe'
+    lastname: 'Doe',
+    email: 'JohnDoe@gmail.com',
+    token: 'test',
   );
 
   User get user => _user;
 
   void updateFirstName(String firstName) {
-    _user = User(
-      username: _user.username,
-      firstname: firstName,
-      lastname: _user.lastname,
-    );
+    _user.firstname = firstName;
+    notifyListeners();
+  }
+
+  void updateLastName(String lastName) {
+    _user.lastname = lastName;
     notifyListeners();
   }
 
   void updateUsername(String username) {
     _user.username = username;
+    notifyListeners();
+  }
+
+  void updateEmail(String email) {
+    _user.email = email;
+    notifyListeners();
+  }
+
+  void updatePoints(int points) {
+    _user.points = points;
     notifyListeners();
   }
 

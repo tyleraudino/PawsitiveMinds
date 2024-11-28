@@ -80,7 +80,7 @@ class HomePage extends StatelessWidget {
                               textAlign: TextAlign.left,
                             ),
                             Container(
-                              height: 200, // Set a fixed height for the ListView
+                              height: 300, // Set a fixed height for the ListView
                               child:
                                   buildTodayGoalList(userProvider.user.userGoals),
                             ),
@@ -112,8 +112,18 @@ class HomePage extends StatelessWidget {
                               textAlign: TextAlign.left,
                             ),
                             Container(
-                              height: 200, // Set a fixed height for the ListView
-                              // child
+                              height: 210, // Set a fixed height for the ListView
+                          
+                              child: 
+                                Center(
+                                  child:
+                                  Text(
+                                  userProvider.user.points.toString() ,
+                                  textAlign: TextAlign.left,
+                                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 50),
+                                  ),
+                              ),
+                                
                             ),
                           ],
                         ),
@@ -132,11 +142,11 @@ class HomePage extends StatelessWidget {
                           mainAxisAlignment: MainAxisAlignment.start,
                           children: [
                             const Text(
-                              "Recent Cats",
+                              "Recent Cats:",
                               textAlign: TextAlign.left,
                             ),
                             Container(
-                              height: 200, // Set a fixed height for the ListView
+                              height: 210, // Set a fixed height for the ListView
                               // child
                             ),
                           ],
@@ -146,33 +156,7 @@ class HomePage extends StatelessWidget {
                   ],),
 
                 //this row has the extra box
-                Row(mainAxisAlignment: MainAxisAlignment.start,
-                  children: [
-                    Expanded(
-                      child: Container(
-                        margin: const EdgeInsets.all(8.0),
-                        padding: const EdgeInsets.all(8.0),
-                        decoration: BoxDecoration(
-                          color: const Color.fromARGB(255, 248, 213, 190),
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          children: [
-                            const Text(
-                              "Box for future use",
-                              textAlign: TextAlign.left,
-                            ),
-                            Container(
-                              height: 200, // Set a fixed height for the ListView
-                              // child
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ]),
+                
               ],
             ),
           )
