@@ -39,6 +39,16 @@ class _LoginPageState extends State<LoginPage> {
 
     if (response.statusCode == 200) { // demo info
       provider.updateUsername(username);
+      //need to get this info from backend after successful login
+      //test data for now
+      String firstname = "test";
+      String lastname = "test";
+      String email = "test";
+      int points = 10;
+      provider.updateFirstName(firstname);
+      provider.updateLastName(lastname);
+      provider.updateEmail(email);
+      provider.updatePoints(points);
       provider.updateToken(data['token']);
       
       Navigator.pushReplacement(

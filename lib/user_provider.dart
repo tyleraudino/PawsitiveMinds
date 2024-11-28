@@ -32,6 +32,11 @@ class UserProvider with ChangeNotifier {
     notifyListeners();
   }
 
+  void updatePoints(int points) {
+    _user.points = points;
+    notifyListeners();
+  }
+
   void updateToken(String token) {
     _user.token = token;
     notifyListeners();

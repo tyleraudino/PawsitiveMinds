@@ -35,7 +35,7 @@ class ProfilePage extends StatelessWidget {
                 Column(
                   children: [
                     const SizedBox(height: 16),
-                    Text('Email: [email]'),
+                    Text('Email: ' + userProvider.user.email),
                     const SizedBox(height: 16),
                     Text('Username: ' + userProvider.user.username),
                   ],
