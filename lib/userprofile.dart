@@ -1,11 +1,15 @@
 import 'package:flutter/material.dart';
 import 'opening.dart';
+import 'package:provider/provider.dart';
+import 'user_provider.dart';
 
 class ProfilePage extends StatelessWidget {
   const ProfilePage({super.key});
 
   @override
   Widget build(BuildContext context) {
+    return Consumer<UserProvider>(
+      builder: (context, userProvider, child) {
     return Scaffold(
       appBar: AppBar(
         title: Text('Pawsitive Minds'),
@@ -33,7 +37,7 @@ class ProfilePage extends StatelessWidget {
                     const SizedBox(height: 16),
                     Text('Email: [email]'),
                     const SizedBox(height: 16),
-                    Text('Username: [username]'),
+                    Text('Username: ' + userProvider.user.username),
                   ],
                 ),
                 const SizedBox(width: 40),
@@ -89,5 +93,6 @@ class ProfilePage extends StatelessWidget {
         ),
       ),
     );
+  });
   }
 }

@@ -122,7 +122,10 @@ async def login_user(user: User):
     if not user_data:
         raise HTTPException(status_code=400, detail="User not found")
     
-    if not ph.verify(user_data["password"], user.password):
+    try:
+        if not ph.verify(user_data["password"], user.password):
+            raise HTTPException(status_code=400, detail="Invalid password")
+    except argon2.exceptions.VerifyMismatchError:
         raise HTTPException(status_code=400, detail="Invalid password")
     
     if ph.check_needs_rehash(user_data["password"]):
