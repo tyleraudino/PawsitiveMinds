@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 import 'main.dart'; 
-import 'opening.dart'; 
+import 'opening.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+import 'package:provider/provider.dart';
+import 'user_provider.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -13,11 +17,30 @@ class _LoginPageState extends State<LoginPage> {
   final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
 
-  void _login() {
+  void _login(UserProvider provider) async {
     String username = _usernameController.text;
     String password = _passwordController.text;
 
-    if (username == "admin" && password == "password") { // demo info
+    final String apiUrl = 'http://127.0.0.1:8000/user/login';
+    final Map<String, dynamic> loginData = {
+      'user_id': username,
+      'password': password,
+    };
+
+    final response = await http.post(
+      Uri.parse(apiUrl),
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: json.encode(loginData),
+    );
+
+    Map<String, dynamic> data = json.decode(response.body);
+
+    if (response.statusCode == 200) { // demo info
+      provider.updateUsername(username);
+      provider.updateToken(data['token']);
+      
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (context) => MainPage()), // to home page
@@ -45,6 +68,8 @@ class _LoginPageState extends State<LoginPage> {
 
   @override
   Widget build(BuildContext context) {
+    return Consumer<UserProvider>(
+      builder: (context, userProvider, child) {
     return Scaffold(
       appBar: AppBar(
         title: Text('Pawsitive Minds'),
@@ -72,7 +97,7 @@ class _LoginPageState extends State<LoginPage> {
             ),
             SizedBox(height: 16),
             ElevatedButton(
-              onPressed: _login, // calls the login function when pressed
+              onPressed: () => _login(userProvider), // calls the login function when pressed
               child: Text('Login'),
             ),
             SizedBox(height: 16),
@@ -90,5 +115,7 @@ class _LoginPageState extends State<LoginPage> {
         ),
       ),
     );
+      });
   }
+
 }
