@@ -19,6 +19,8 @@ class _SignupPageState extends State<SignupPage> {
   final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _confirmPassController = TextEditingController();
+  final TextEditingController _firstNameController = TextEditingController();
+  final TextEditingController _lastNameController = TextEditingController();
 
   void PasswordsError() {
     showDialog(
@@ -44,6 +46,8 @@ class _SignupPageState extends State<SignupPage> {
     String email = _emailController.text; // todo - make backend changes to store this
     String username = _usernameController.text;
     String password = _passwordController.text;
+    String firstname = _firstNameController.text;
+    String lastname = _lastNameController.text;
 
     if (password != _confirmPassController.text) {
       PasswordsError();
@@ -68,6 +72,9 @@ class _SignupPageState extends State<SignupPage> {
 
     if (response.statusCode == 200) { // demo info
       provider.updateUsername(username);
+      provider.updateFirstName(firstname);
+      provider.updateLastName(lastname);
+      provider.updateEmail(email);
       provider.updateToken(data['token']);
       
       Navigator.pushReplacement(
@@ -112,6 +119,22 @@ class _SignupPageState extends State<SignupPage> {
               controller: _emailController,
               decoration: InputDecoration(
                 labelText: 'Email',
+                border: OutlineInputBorder(),
+              ),
+            ),
+            SizedBox(height: 16),
+            TextField(
+              controller: _firstNameController,
+              decoration: InputDecoration(
+                labelText: 'First Name',
+                border: OutlineInputBorder(),
+              ),
+            ),
+            SizedBox(height: 16),
+            TextField(
+              controller: _lastNameController,
+              decoration: InputDecoration(
+                labelText: 'Last Name',
                 border: OutlineInputBorder(),
               ),
             ),

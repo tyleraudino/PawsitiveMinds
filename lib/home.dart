@@ -113,7 +113,17 @@ class HomePage extends StatelessWidget {
                             ),
                             Container(
                               height: 210, // Set a fixed height for the ListView
-                              // child
+                          
+                              child: 
+                                Center(
+                                  child:
+                                  Text(
+                                  userProvider.user.points.toString() ,
+                                  textAlign: TextAlign.left,
+                                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 50),
+                                  ),
+                              ),
+                                
                             ),
                           ],
                         ),
@@ -132,7 +142,7 @@ class HomePage extends StatelessWidget {
                           mainAxisAlignment: MainAxisAlignment.start,
                           children: [
                             const Text(
-                              "Recent Cats",
+                              "Recent Cats:",
                               textAlign: TextAlign.left,
                             ),
                             Container(
