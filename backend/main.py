@@ -30,6 +30,7 @@ app.add_middleware(
 # mongo connection
 client = motor.motor_asyncio.AsyncIOMotorClient("mongodb://localhost:27017/")
 db = client["your_database"]
+user_collection = db["user_collection"]
 collection = db["your_collection"]
 
 # pydantic models
@@ -116,12 +117,12 @@ UserDep = Annotated[UserToken, Depends(decode_jwt)]
 # registers user
 @app.post("/user/register")
 async def register_user(user: UserRegister):
-    if await collection.find_one({"username": user.username}):
+    if await user_collection.find_one({"username": user.username}):
         raise HTTPException(status_code=400, detail="User already registered")
 
     user_data = user.model_dump()
     user_data["password"] = ph.hash(user_data["password"])
-    result = await collection.insert_one(user_data)
+    result = await user_collection.insert_one(user_data)
     if result.inserted_id:
         return {
             "message": "User registered successfully!",
@@ -133,7 +134,7 @@ async def register_user(user: UserRegister):
 # login user
 @app.post("/user/login")
 async def login_user(user: UserLogin):
-    user_data = await collection.find_one({"username": user.username})
+    user_data = await user_collection.find_one({"username": user.username})
     if not user_data:
         raise HTTPException(status_code=400, detail="User not found")
     
@@ -145,7 +146,7 @@ async def login_user(user: UserLogin):
     
     if ph.check_needs_rehash(user_data["password"]):
         user_data["password"] = ph.hash(user.password)
-        await collection.update_one({"_id": user_data["_id"]}, {"$set": {"password": user_data["password"]}})
+        await user_collection.update_one({"_id": user_data["_id"]}, {"$set": {"password": user_data["password"]}})
     
     return {
         "message": "Login successful!",
@@ -159,44 +160,44 @@ async def login_user(user: UserLogin):
 # change password
 @app.post("/user/change_password")
 async def change_password(user: UserDep, data: UpdatePassword):
-    user_data = await collection.find_one({"_id": ObjectId(user.object_id)})
+    user_data = await user_collection.find_one({"_id": ObjectId(user.object_id)})
     if not user_data:
         raise HTTPException(status_code=400, detail="User not found")
     
     user_data["password"] = ph.hash(data.password)
-    await collection.update_one({"_id": user_data["_id"]}, {"$set": {"password": user_data["password"]}})
+    await user_collection.update_one({"_id": user_data["_id"]}, {"$set": {"password": user_data["password"]}})
     return {"message": "Password changed successfully!"}
 
 
 # change email
 @app.post("/user/change_email")
 async def change_email(user: UserDep, data: UpdateEmail):
-    user_data = await collection.find_one({"_id": ObjectId(user.object_id)})
+    user_data = await user_collection.find_one({"_id": ObjectId(user.object_id)})
     if not user_data:
         raise HTTPException(status_code=400, detail="User not found")
     
-    await collection.update_one({"_id": user_data["_id"]}, {"$set": {"email": data.email}})
+    await user_collection.update_one({"_id": user_data["_id"]}, {"$set": {"email": data.email}})
     return {"message": "Email changed successfully!"}
 
 # change username
 @app.post("/user/change_username")
 async def change_username(user: UserDep, data: UpdateUsername):
-    user_data = await collection.find_one({"_id": ObjectId(user.object_id)})
+    user_data = await user_collection.find_one({"_id": ObjectId(user.object_id)})
     if not user_data:
         raise HTTPException(status_code=400, detail="User not found")
     
-    await collection.update_one({"_id": user_data["_id"]}, {"$set": {"username": data.username}})
+    await user_collection.update_one({"_id": user_data["_id"]}, {"$set": {"username": data.username}})
     return {"message": "User ID changed successfully!"}
 
 
 # delete user
 @app.delete("/user/delete")
 async def delete_user(user: UserDep):
-    user_data = await collection.find_one({"_id": ObjectId(user.object_id)})
+    user_data = await user_collection.find_one({"_id": ObjectId(user.object_id)})
     if not user_data:
         raise HTTPException(status_code=400, detail="User not found")
     
-    await collection.delete_one({"_id": user_data["_id"]})
+    await user_collection.delete_one({"_id": user_data["_id"]})
     return {"message": "User deleted successfully!"}
 
 
