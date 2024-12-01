@@ -41,6 +41,24 @@ class _ChangeUsernameState extends State<ChangeUsername> {
         context,
         MaterialPageRoute(builder: (context) => ProfilePage()),
       );
+    } else if (response.statusCode == 403) {
+      showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            title: Text('Username Taken'),
+            content: Text('The username you entered is already taken. Please try another one.'),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                child: Text('OK'),
+              ),
+            ],
+          );
+        },
+      );
     } else {
       showDialog(
         context: context,

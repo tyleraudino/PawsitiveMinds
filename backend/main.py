@@ -186,6 +186,9 @@ async def change_username(user: UserDep, data: UpdateUsername):
     if not user_data:
         raise HTTPException(status_code=400, detail="User not found")
     
+    if await user_collection.find_one({"username": data.username}):
+        raise HTTPException(status_code=403, detail="Username already taken")
+    
     await user_collection.update_one({"_id": user_data["_id"]}, {"$set": {"username": data.username}})
     return {"message": "User ID changed successfully!"}
 
