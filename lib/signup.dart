@@ -56,7 +56,10 @@ class _SignupPageState extends State<SignupPage> {
 
     final String apiUrl = 'http://127.0.0.1:8000/user/register';
     final Map<String, dynamic> registerData = {
-      'user_id': username,
+      'username': username,
+      'first_name': firstname,
+      'last_name': lastname,
+      'email': email,
       'password': password,
     };
 

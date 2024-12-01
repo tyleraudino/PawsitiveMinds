@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'opening.dart';
 import 'package:provider/provider.dart';
 import 'user_provider.dart';
+import 'change_email.dart';
+import 'change_password.dart';
+import 'change_username.dart';
 
 class ProfilePage extends StatelessWidget {
   const ProfilePage({super.key});
@@ -48,7 +51,7 @@ class ProfilePage extends StatelessWidget {
                       onPressed: () {
                         Navigator.pushReplacement(
                           context,
-                          MaterialPageRoute(builder: (context) => OpeningPage()),
+                          MaterialPageRoute(builder: (context) => ChangeEmail()),
                         );
                       },
                       child: const Text('Change Email'),
@@ -58,7 +61,7 @@ class ProfilePage extends StatelessWidget {
                       onPressed: () {
                         Navigator.pushReplacement(
                           context,
-                          MaterialPageRoute(builder: (context) => OpeningPage()),
+                          MaterialPageRoute(builder: (context) => ChangeUsername()),
                         );
                       },
                       child: const Text('Change Username'),
@@ -68,7 +71,7 @@ class ProfilePage extends StatelessWidget {
                       onPressed: () {
                         Navigator.pushReplacement(
                           context,
-                          MaterialPageRoute(builder: (context) => OpeningPage()),
+                          MaterialPageRoute(builder: (context) => ChangePassword()),
                         );
                       },
                       child: const Text('Change Password'),

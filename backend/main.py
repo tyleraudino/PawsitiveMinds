@@ -46,18 +46,30 @@ class Goal(BaseModel):
     title: str
     description: str
 
-# for user data
-class User(BaseModel):
-    user_id: str
+# for user login data
+class UserLogin(BaseModel):
+    username: str
     password: str
+
+# for user registration
+class UserRegister(UserLogin):
+    email: str
+    first_name: str
+    last_name: str
 
 # for updating password
 class UpdatePassword(BaseModel):
-    new_password: str
+    password: str
+
+class UpdateEmail(BaseModel):
+    email: str
+
+class UpdateUsername(BaseModel):
+    username: str
 
 # for user token
 class UserToken(BaseModel):
-    user_id: str
+    object_id: str
     expires_in: datetime.datetime
 
 # for updating goals
@@ -66,9 +78,9 @@ class UpdateGoal(BaseModel):
     description: Optional[str] = None
 
     
-def generate_jwt(user_id: str) -> str:
+def generate_jwt(object_id: ObjectId) -> str:
     to_encode = {
-        "user_id": user_id,
+        "object_id": str(object_id),
         "expires_in": (datetime.datetime.now(datetime.timezone.utc) + datetime.timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)).isoformat()
     }
     encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
@@ -103,22 +115,25 @@ UserDep = Annotated[UserToken, Depends(decode_jwt)]
 
 # registers user
 @app.post("/user/register")
-async def register_user(user: User):
-    if await collection.find_one({"user_id": user.user_id}):
+async def register_user(user: UserRegister):
+    if await collection.find_one({"username": user.username}):
         raise HTTPException(status_code=400, detail="User already registered")
 
     user_data = user.model_dump()
     user_data["password"] = ph.hash(user_data["password"])
     result = await collection.insert_one(user_data)
     if result.inserted_id:
-        return {"message": "User registered successfully!", "token": generate_jwt(user.user_id)}
+        return {
+            "message": "User registered successfully!",
+            "token": generate_jwt(result.inserted_id)
+        }
     else:
         raise HTTPException(status_code=400, detail="User registration failed")
 
 # login user
 @app.post("/user/login")
-async def login_user(user: User):
-    user_data = await collection.find_one({"user_id": user.user_id})
+async def login_user(user: UserLogin):
+    user_data = await collection.find_one({"username": user.username})
     if not user_data:
         raise HTTPException(status_code=400, detail="User not found")
     
@@ -132,25 +147,52 @@ async def login_user(user: User):
         user_data["password"] = ph.hash(user.password)
         await collection.update_one({"_id": user_data["_id"]}, {"$set": {"password": user_data["password"]}})
     
-    return {"message": "Login successful!", "token": generate_jwt(user.user_id)}
+    return {
+        "message": "Login successful!",
+        "email": user_data["email"],
+        "first_name": user_data["first_name"],
+        "last_name": user_data["last_name"],
+        "token": generate_jwt(user_data["_id"])
+    }
 
 
 # change password
 @app.post("/user/change_password")
 async def change_password(user: UserDep, data: UpdatePassword):
-    user_data = await collection.find_one({"user_id": user.user_id})
+    user_data = await collection.find_one({"_id": ObjectId(user.object_id)})
     if not user_data:
         raise HTTPException(status_code=400, detail="User not found")
     
-    user_data["password"] = ph.hash(data.new_password)
+    user_data["password"] = ph.hash(data.password)
     await collection.update_one({"_id": user_data["_id"]}, {"$set": {"password": user_data["password"]}})
     return {"message": "Password changed successfully!"}
+
+
+# change email
+@app.post("/user/change_email")
+async def change_email(user: UserDep, data: UpdateEmail):
+    user_data = await collection.find_one({"_id": ObjectId(user.object_id)})
+    if not user_data:
+        raise HTTPException(status_code=400, detail="User not found")
+    
+    await collection.update_one({"_id": user_data["_id"]}, {"$set": {"email": data.email}})
+    return {"message": "Email changed successfully!"}
+
+# change username
+@app.post("/user/change_username")
+async def change_username(user: UserDep, data: UpdateUsername):
+    user_data = await collection.find_one({"_id": ObjectId(user.object_id)})
+    if not user_data:
+        raise HTTPException(status_code=400, detail="User not found")
+    
+    await collection.update_one({"_id": user_data["_id"]}, {"$set": {"username": data.username}})
+    return {"message": "User ID changed successfully!"}
 
 
 # delete user
 @app.delete("/user/delete")
 async def delete_user(user: UserDep):
-    user_data = await collection.find_one({"user_id": user.user_id})
+    user_data = await collection.find_one({"_id": ObjectId(user.object_id)})
     if not user_data:
         raise HTTPException(status_code=400, detail="User not found")
     
