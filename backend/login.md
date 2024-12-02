@@ -6,7 +6,10 @@ To register a user, send a POST request to the `/user/register` endpoint with th
 
 ```json
 {
-    "user_id": "YOUR_USER_ID",
+    "username": "YOUR_USERNAME",
+    "first_name": "YOUR_FIRST_NAME",
+    "last_name": "YOUR_LAST_NAME",
+    "email": "YOUR_EMAIL",
     "password": "YOUR_PASSWORD"
 }
 ```
@@ -25,7 +28,7 @@ To log in, send a POST request to the `/user/login` endpoint with the following 
 
 ```json
 {
-    "user_id": "YOUR_USER_ID",
+    "username": "YOUR_USERNAME",
     "password": "YOUR_PASSWORD"
 }
 ```
@@ -34,6 +37,9 @@ On success, the endpoint returns a 200 status code and the following JSON body:
 ```json
 {
     "message": "Login successful!",
+    "first_name": "YOUR_FIRST_NAME",
+    "last_name": "YOUR_LAST_NAME",
+    "email": "YOUR_EMAIL",
     "token": "YOUR_TOKEN"
 }
 ```
@@ -55,7 +61,7 @@ To change your password, send a POST request to the `/user/change_password` endp
 
 ```json
 {
-    "new_password": "YOUR_NEW_PASSWORD"
+    "password": "YOUR_NEW_PASSWORD"
 }
 ```
 
@@ -65,6 +71,30 @@ Meanwhile, the token should be included in the header of the request.
     "Authorization": "Bearer YOUR_TOKEN"
 }
 ```
+
+## Changing Email
+
+To change your email, send a POST request to the `/user/change_email` endpoint with the following JSON:
+
+```json
+{
+    "email": "YOUR_NEW_EMAIL"
+}
+```
+
+The token should be included in the header of the request.
+
+## Change Username
+
+To change your username, send a POST request to the `/user/change_username` endpoint with the following JSON:
+
+```json
+{
+    "username": "YOUR_NEW_USER_ID"
+}
+```
+
+The token should be included in the header of the request.
 
 ## Deleting User
 

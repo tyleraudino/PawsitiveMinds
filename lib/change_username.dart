@@ -1,65 +1,71 @@
 import 'package:flutter/material.dart';
-import 'main.dart'; 
-import 'opening.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:provider/provider.dart';
 import 'user_provider.dart';
+import "userprofile.dart";
 
-class LoginPage extends StatefulWidget {
-  const LoginPage({super.key});
+class ChangeUsername extends StatefulWidget {
+  const ChangeUsername({super.key});
 
   @override
-  _LoginPageState createState() => _LoginPageState();
+  _ChangeUsernameState createState() => _ChangeUsernameState();
 }
 
-class _LoginPageState extends State<LoginPage> {
+class _ChangeUsernameState extends State<ChangeUsername> {
   final TextEditingController _usernameController = TextEditingController();
-  final TextEditingController _passwordController = TextEditingController();
 
-  void _login(UserProvider provider) async {
+  void _change_username(UserProvider provider) async {
     String username = _usernameController.text;
-    String password = _passwordController.text;
 
-    final String apiUrl = 'http://127.0.0.1:8000/user/login';
-    final Map<String, dynamic> loginData = {
+    final String apiUrl = 'http://127.0.0.1:8000/user/change_username';
+    final Map<String, dynamic> usernameData = {
       'username': username,
-      'password': password,
     };
 
     final response = await http.post(
       Uri.parse(apiUrl),
       headers: {
         'Content-Type': 'application/json',
+        'Authorization': 'Bearer ${provider.user.token}',
       },
-      body: json.encode(loginData),
+      body: json.encode(usernameData),
     );
 
     Map<String, dynamic> data = json.decode(response.body);
 
     if (response.statusCode == 200) { // demo info
       provider.updateUsername(username);
-      String firstname = data['first_name'];
-      String lastname = data['last_name'];
-      String email = data['email'];
-      int points = 10;
-      provider.updateFirstName(firstname);
-      provider.updateLastName(lastname);
-      provider.updateEmail(email);
-      provider.updatePoints(points);
-      provider.updateToken(data['token']);
       
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => MainPage()), // to home page
+        MaterialPageRoute(builder: (context) => ProfilePage()),
+      );
+    } else if (response.statusCode == 403) {
+      showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            title: Text('Username Taken'),
+            content: Text('The username you entered is already taken. Please try another one.'),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                child: Text('OK'),
+              ),
+            ],
+          );
+        },
       );
     } else {
       showDialog(
         context: context,
         builder: (context) {
           return AlertDialog(
-            title: Text('Login Failed'),
-            content: Text('Invalid username or password.'),
+            title: Text('Changing Username Failed'),
+            content: Text('An error occurred while changing username.'),
             actions: [
               TextButton(
                 onPressed: () {
@@ -95,18 +101,9 @@ class _LoginPageState extends State<LoginPage> {
               ),
             ),
             SizedBox(height: 16),
-            TextField(
-              controller: _passwordController,
-              obscureText: true, // hides password input
-              decoration: InputDecoration(
-                labelText: 'Password',
-                border: OutlineInputBorder(),
-              ),
-            ),
-            SizedBox(height: 16),
             ElevatedButton(
-              onPressed: () => _login(userProvider), // calls the login function when pressed
-              child: Text('Login'),
+              onPressed: () => _change_username(userProvider),
+              child: Text('Change Username'),
             ),
             SizedBox(height: 16),
             ElevatedButton(
@@ -114,7 +111,7 @@ class _LoginPageState extends State<LoginPage> {
                 // Navigate to OpeningPage on Go back button press
                 Navigator.pushReplacement(
                   context,
-                  MaterialPageRoute(builder: (context) => OpeningPage()),
+                  MaterialPageRoute(builder: (context) => ProfilePage()),
                 );
               },
               child: Text('Go back'),

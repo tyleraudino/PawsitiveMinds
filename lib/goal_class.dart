@@ -1,16 +1,29 @@
 class Goal {
-  String? id;
-  String title;
-  String description;
-  String recurrence; 
-  int recurrenceInterval; // for custom recurrence
-  DateTime? endDate; // init end date to null for reminders with no end date
-  DateTime? lastCompleted;
-  List<DateTime> completionDates = [];
-  bool reminders = false;
-  int points;
+  late String? id;
+  late String title;
+  late String description;
+  late String recurrence; 
+  late int recurrenceInterval; // for custom recurrence
+  late DateTime? endDate; // init end date to null for reminders with no end date
+  late DateTime? lastCompleted;
+  late List<DateTime> completionDates = [];
+  late bool reminders = false;
+  late int points;
 
   Goal({this.id, required this.title, required this.description, required this.points, this.recurrence = "Daily", this.recurrenceInterval = 1, this.endDate});
+
+  Goal.fromJson(Map<String, dynamic> json) {
+    id = json['id'];
+    title = json['title'];
+    description = json['description'];
+    recurrence = json['recurrence'];
+    recurrenceInterval = json['recurrenceInterval'];
+    endDate = json['endDate'] != null ? DateTime.parse(json['endDate']) : null;
+    lastCompleted = json['lastCompleted'] != null ? DateTime.parse(json['lastCompleted']) : null;
+    completionDates = json['completionDates'] != null ? json['completionDates'].map<DateTime>((date) => DateTime.parse(date)).toList() : [];
+    reminders = json['reminders'];
+    points = json['points'];
+  }
 
   void completeGoal(){
     DateTime now = DateTime.now();
