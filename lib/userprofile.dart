@@ -13,89 +13,110 @@ class ProfilePage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Consumer<UserProvider>(
       builder: (context, userProvider, child) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Pawsitive Minds'),
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Center(
-              // https://stackoverflow.com/questions/51556356/how-to-display-animated-gif-in-flutter
-              child: Image.asset(
-                'assets/profilecat.gif',
-                width: 250,
-                height: 250,
-                fit: BoxFit.contain,
-              ),
-            ),
-            const SizedBox(height: 32),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
+        return Scaffold(
+          appBar: AppBar(
+            title: const Text('Pawsitive Minds'),
+          ),
+          body: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
               children: [
-                Column(
-                  children: [
-                    const SizedBox(height: 16),
-                    Text('Email: ' + userProvider.user.email),
-                    const SizedBox(height: 16),
-                    Text('Username: ' + userProvider.user.username),
-                  ],
+                Center(
+                  child: Image.asset(
+                    'assets/profilecat.gif',
+                    width: 250,
+                    height: 250,
+                    fit: BoxFit.contain,
+                  ),
                 ),
-                const SizedBox(width: 40),
-                Column(
-                  children: [
-                    const SizedBox(height: 16),
-                    ElevatedButton(
-                      onPressed: () {
-                        Navigator.pushReplacement(
-                          context,
-                          MaterialPageRoute(builder: (context) => ChangeEmail()),
-                        );
-                      },
-                      child: const Text('Change Email'),
+                const SizedBox(height: 32),
+                Expanded(
+                  child: GridView(
+                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: MediaQuery.of(context).size.width > 600 ? 3 : 2,
+                      crossAxisSpacing: 16.0,
+                      mainAxisSpacing: 16.0,
+                      childAspectRatio: 3,
                     ),
-                    const SizedBox(height: 16),
-                    ElevatedButton(
-                      onPressed: () {
-                        Navigator.pushReplacement(
-                          context,
-                          MaterialPageRoute(builder: (context) => ChangeUsername()),
-                        );
-                      },
-                      child: const Text('Change Username'),
-                    ),
-                    const SizedBox(height: 16),
-                    ElevatedButton(
-                      onPressed: () {
-                        Navigator.pushReplacement(
-                          context,
-                          MaterialPageRoute(builder: (context) => ChangePassword()),
-                        );
-                      },
-                      child: const Text('Change Password'),
-                    ),
-                  ],
+                    children: [
+                      _ProfileInfoTile(
+                        title: 'Email',
+                        value: userProvider.user.email,
+                      ),
+                      _ProfileInfoTile(
+                        title: 'Username',
+                        value: userProvider.user.username,
+                      ),
+                      ElevatedButton(
+                        onPressed: () {
+                          Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(builder: (context) => ChangeEmail()),
+                          );
+                        },
+                        child: const Text('Change Email'),
+                      ),
+                      ElevatedButton(
+                        onPressed: () {
+                          Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(builder: (context) => ChangeUsername()),
+                          );
+                        },
+                        child: const Text('Change Username'),
+                      ),
+                      ElevatedButton(
+                        onPressed: () {
+                          Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(builder: (context) => ChangePassword()),
+                          );
+                        },
+                        child: const Text('Change Password'),
+                      ),
+                      ElevatedButton(
+                        onPressed: () {
+                          Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(builder: (context) => OpeningPage()),
+                          );
+                        },
+                        child: const Text('Log Out'),
+                      ),
+                    ],
+                  ),
                 ),
               ],
             ),
-            const SizedBox(height: 32),
-            Center(
-              child: ElevatedButton(
-                onPressed: () {
-                  Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(builder: (context) => OpeningPage()),
-                  );
-                },
-                child: const Text('Log Out'),
-              ),
-            ),
-          ],
-        ),
-      ),
+          ),
+        );
+      },
     );
+  }
+}
+
+class _ProfileInfoTile extends StatelessWidget {
+  final String title;
+  final String value;
+
+  const _ProfileInfoTile({
+    required this.title,
+    required this.value,
   });
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        Text(
+          title,
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
+        const SizedBox(height: 8),
+        Text(value),
+      ],
+    );
   }
 }
