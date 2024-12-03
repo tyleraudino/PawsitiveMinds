@@ -10,7 +10,7 @@ class Goal {
   late bool reminders = false;
   late int points;
 
-  Goal({this.id, required this.title, required this.description, required this.points, this.recurrence = "Daily", this.recurrenceInterval = 1, this.endDate});
+  Goal({this.id, required this.title, required this.description, required this.points, this.recurrence = "Daily", this.recurrenceInterval = 1, this.endDate, this.lastCompleted});
 
   Goal.fromJson(Map<String, dynamic> json) {
     id = json['id'];
