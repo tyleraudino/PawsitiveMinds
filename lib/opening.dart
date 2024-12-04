@@ -10,17 +10,11 @@ class OpeningPage extends StatelessWidget {
         title: Text(''),
       ),
       body: Center(
-        child: SingleChildScrollView( // Allow scrolling for smaller screens
+        child: SingleChildScrollView(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              // Image widget
-              /*
-              Image.asset(
-                'assets/your_image.png', // Change to your image path
-                height: 150, // Adjust height as needed
-              ),*/
-              SizedBox(height: 20), // Space between image and text
+              SizedBox(height: 20), 
               Text(
                 'Welcome to Pawsitive Minds',
                 style: TextStyle(
@@ -28,10 +22,17 @@ class OpeningPage extends StatelessWidget {
                   fontWeight: FontWeight.bold,
                 ),
               ),
-              SizedBox(height: 20), // Space between text and buttons
+               Center(
+                  child: Image.asset(
+                    'assets/profilecat.gif',
+                    width: 250,
+                    height: 250,
+                    fit: BoxFit.contain,
+                  ),
+                ),
+              SizedBox(height: 20), 
               ElevatedButton(
                 onPressed: () {
-                  // Navigate to MainPage on Login button press
                   Navigator.pushReplacement(
                     context,
                     MaterialPageRoute(builder: (context) => LoginPage()),
@@ -39,10 +40,9 @@ class OpeningPage extends StatelessWidget {
                 },
                 child: Text('Login'),
               ),
-              SizedBox(height: 10), // Space between buttons
+              SizedBox(height: 10),
               ElevatedButton(
                 onPressed: () {
-                  // Navigate to MainPage on Login button press
                   Navigator.pushReplacement(
                     context,
                     MaterialPageRoute(builder: (context) => SignupPage()),
