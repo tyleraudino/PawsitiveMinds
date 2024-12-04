@@ -436,13 +436,39 @@ class _CompleteGoalPageState extends State<CompleteGoalPage> {
     super.dispose();
   }
 
-  void saveCompletion() {
+  void saveCompletion(UserProvider provider) async {
     widget.goal.completeGoal();
-    Navigator.of(context).pop();
+    int result = await provider.updateAndSyncPoints(provider.user.points + widget.goal.points);
+
+    if (mounted) {
+      if (result != 200) {
+        showDialog(
+          context: context,
+          builder: (context) {
+            return AlertDialog(
+              title: const Text('Error'),
+              content: const Text('An error occurred while updating points.'),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                  child: const Text('OK'),
+                ),
+              ],
+            );
+          },
+        );
+      } else {
+        Navigator.of(context).pop();
+      }
+    }
   }
 
   @override
   Widget build(BuildContext context) {
+    return Consumer<UserProvider>(
+      builder: (context, userProvider, child) {
     return Scaffold(
       appBar: AppBar(),
       body: Padding(
@@ -455,12 +481,13 @@ class _CompleteGoalPageState extends State<CompleteGoalPage> {
             ),
             SizedBox(height: 20),
             ElevatedButton(
-              onPressed: saveCompletion,
+              onPressed: () => saveCompletion(userProvider),
               child: const Text("Complete Goal"),
             ),
           ],
         ),
       ),
     );
+  });
   }
 }

@@ -42,7 +42,7 @@ class _LoginPageState extends State<LoginPage> {
       String firstname = data['first_name'];
       String lastname = data['last_name'];
       String email = data['email'];
-      int points = 10;
+      int points = data['points'] ?? 0;
       provider.updateFirstName(firstname);
       provider.updateLastName(lastname);
       provider.updateEmail(email);

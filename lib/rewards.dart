@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'reward_cat.dart';
+import 'package:provider/provider.dart';
+import 'user_provider.dart';
 
 class RewardsPage extends StatefulWidget {
   @override
@@ -7,10 +9,10 @@ class RewardsPage extends StatefulWidget {
 }
 
 class _RewardsPageState extends State<RewardsPage> {
-  int userPoints = 100; 
-
   @override
   Widget build(BuildContext context) {
+    return Consumer<UserProvider>(
+      builder: (context, userProvider, child) {
     return Scaffold(
       appBar: AppBar(
         title: Text('Rewards Page'),
@@ -28,13 +30,8 @@ class _RewardsPageState extends State<RewardsPage> {
           itemBuilder: (context, index) {
             return ImageButton(
               imagePath: 'assets/rewardcat${index + 1}.png',
-              userPoints: userPoints,
               requiredPoints: 20 + (index % 3) * 10, // required points
-              onPointsUpdated: (updatedPoints) {
-                setState(() {
-                  userPoints = updatedPoints;
-                });
-              },
+              userProvider: userProvider,
               onPressed: () {
                 // Define your onPressed action here
               },
@@ -43,6 +40,7 @@ class _RewardsPageState extends State<RewardsPage> {
         ),
       ),
     );
+  });
   }
 }
 
