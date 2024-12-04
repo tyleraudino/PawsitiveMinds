@@ -142,7 +142,7 @@ class HomePage extends StatelessWidget {
                           mainAxisAlignment: MainAxisAlignment.start,
                           children: [
                             const Text(
-                              "Recent Cats:",
+                              "Most recent cat:",
                               textAlign: TextAlign.left,
                             ),
                             Container(
