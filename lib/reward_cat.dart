@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'user_provider.dart';
 
 class ImageButton extends StatefulWidget {
   final String trueLabel = "";
@@ -24,7 +26,7 @@ class ImageButton extends StatefulWidget {
 
 class _ImageButtonState extends State<ImageButton> {
   bool unlocked = false;
-  
+
   @override
   Widget build(BuildContext context) {
     return ElevatedButton(
@@ -44,7 +46,7 @@ class _ImageButtonState extends State<ImageButton> {
           EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         ),
       ),
-     onPressed: unlocked
+      onPressed: unlocked
           ? null
           : () {
               _showUnlockDialog(context);
@@ -90,6 +92,9 @@ class _ImageButtonState extends State<ImageButton> {
                   });
                   widget.onPointsUpdated(widget.userPoints - widget.requiredPoints);
                   widget.onPressed();
+                  // updates most recent cat
+                  Provider.of<UserProvider>(context, listen: false)
+                      .updateRecentCatImagePath(widget.imagePath);
                   Navigator.of(context).pop();
                 } else {
                   Navigator.of(context).pop();
