@@ -17,9 +17,10 @@ class ProfilePage extends StatelessWidget {
           appBar: AppBar(
             title: const Text('Pawsitive Minds'),
           ),
-          body: Padding(
+          body: SingleChildScrollView(
             padding: const EdgeInsets.all(16.0),
             child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center, // center
               children: [
                 Center(
                   child: Image.asset(
@@ -30,61 +31,62 @@ class ProfilePage extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 32),
-                Expanded(
-                  child: GridView(
-                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: MediaQuery.of(context).size.width > 600 ? 3 : 2,
-                      crossAxisSpacing: 16.0,
-                      mainAxisSpacing: 16.0,
-                      childAspectRatio: 3,
+                
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center, // center content
+                  children: [
+                    _ProfileInfoTile(
+                      title: 'Email',
+                      value: userProvider.user.email,
                     ),
-                    children: [
-                      _ProfileInfoTile(
-                        title: 'Email',
-                        value: userProvider.user.email,
-                      ),
-                      _ProfileInfoTile(
-                        title: 'Username',
-                        value: userProvider.user.username,
-                      ),
-                      ElevatedButton(
-                        onPressed: () {
-                          Navigator.pushReplacement(
-                            context,
-                            MaterialPageRoute(builder: (context) => ChangeEmail()),
-                          );
-                        },
-                        child: const Text('Change Email'),
-                      ),
-                      ElevatedButton(
-                        onPressed: () {
-                          Navigator.pushReplacement(
-                            context,
-                            MaterialPageRoute(builder: (context) => ChangeUsername()),
-                          );
-                        },
-                        child: const Text('Change Username'),
-                      ),
-                      ElevatedButton(
-                        onPressed: () {
-                          Navigator.pushReplacement(
-                            context,
-                            MaterialPageRoute(builder: (context) => ChangePassword()),
-                          );
-                        },
-                        child: const Text('Change Password'),
-                      ),
-                      ElevatedButton(
-                        onPressed: () {
-                          Navigator.pushReplacement(
-                            context,
-                            MaterialPageRoute(builder: (context) => OpeningPage()),
-                          );
-                        },
-                        child: const Text('Log Out'),
-                      ),
-                    ],
-                  ),
+                    const SizedBox(width: 16),
+                    _ProfileInfoTile(
+                      title: 'Username',
+                      value: userProvider.user.username,
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 32),
+                
+                // buttons
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(builder: (context) => ChangeEmail()),
+                    );
+                  },
+                  child: const Text('Change Email'),
+                ),
+                const SizedBox(height: 16),
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(builder: (context) => ChangeUsername()),
+                    );
+                  },
+                  child: const Text('Change Username'),
+                ),
+                const SizedBox(height: 16),
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(builder: (context) => ChangePassword()),
+                    );
+                  },
+                  child: const Text('Change Password'),
+                ),
+                const SizedBox(height: 16),
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(builder: (context) => OpeningPage()),
+                    );
+                  },
+                  child: const Text('Log Out'),
                 ),
               ],
             ),
@@ -107,8 +109,6 @@ class _ProfileInfoTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         Text(
           title,

@@ -315,7 +315,7 @@ async def update_goal(goal_id: str, goal: UpdateGoal):
     else:
         raise HTTPException(status_code=400, detail="No valid fields provided for update")
     
-    
+
 # pre-defined rewards stored in the database
 @app.on_event("startup")
 async def populate_rewards():
@@ -333,3 +333,26 @@ async def populate_rewards():
             {"rewardcat9": "/assets/rewardcat9.png", "unlocked": False},
         ]
         await db["rewards"].insert_many(predefined_rewards)
+
+@app.put("/rewards/{reward_id}")
+async def toggle_reward_unlocked(reward_id: str, user: UserDep):
+    try:
+        object_id = ObjectId(reward_id)
+    except Exception:
+        raise HTTPException(status_code=400, detail="Invalid reward ID format")
+
+    # find reward
+    reward = await db["rewards"].find_one({"_id": object_id})
+    if not reward:
+        raise HTTPException(status_code=404, detail="Reward not found")
+
+    # toggle 'unlocked' to True
+    updated = await db["rewards"].update_one(
+        {"_id": object_id},
+        {"$set": {"unlocked": True}}
+    )
+
+    if updated.modified_count == 1:
+        return {"message": f"Reward {reward_id} unlocked successfully!"}
+    else:
+        raise HTTPException(status_code=500, detail="Failed to update reward")
