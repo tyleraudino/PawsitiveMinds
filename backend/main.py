@@ -76,6 +76,10 @@ class UpdateUsername(BaseModel):
     username: str
 
 
+class UpdatePoints(BaseModel):
+    points: int
+
+
 # for user token
 class UserToken(BaseModel):
     object_id: str
@@ -132,6 +136,7 @@ async def register_user(user: UserRegister):
 
     user_data = user.model_dump()
     user_data["password"] = ph.hash(user_data["password"])
+    user_data["points"] = 0
     result = await user_collection.insert_one(user_data)
     if result.inserted_id:
         return {
@@ -164,6 +169,7 @@ async def login_user(user: UserLogin):
         "email": user_data["email"],
         "first_name": user_data["first_name"],
         "last_name": user_data["last_name"],
+        "points": user_data["points"],
         "token": generate_jwt(user_data["_id"])
     }
 
@@ -203,6 +209,17 @@ async def change_username(user: UserDep, data: UpdateUsername):
     
     await user_collection.update_one({"_id": user_data["_id"]}, {"$set": {"username": data.username}})
     return {"message": "User ID changed successfully!"}
+
+
+# change points
+@app.post("/user/change_points")
+async def change_points(user: UserDep, data: UpdatePoints):
+    user_data = await user_collection.find_one({"_id": ObjectId(user.object_id)})
+    if not user_data:
+        raise HTTPException(status_code=400, detail="User not found")
+    
+    await user_collection.update_one({"_id": user_data["_id"]}, {"$set": {"points": data.points}})
+    return {"message": "Points changed successfully!"}
 
 
 # delete user

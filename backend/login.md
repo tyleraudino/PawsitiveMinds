@@ -40,6 +40,7 @@ On success, the endpoint returns a 200 status code and the following JSON body:
     "first_name": "YOUR_FIRST_NAME",
     "last_name": "YOUR_LAST_NAME",
     "email": "YOUR_EMAIL",
+    "points": "YOUR_POINTS",
     "token": "YOUR_TOKEN"
 }
 ```
@@ -91,6 +92,18 @@ To change your username, send a POST request to the `/user/change_username` endp
 ```json
 {
     "username": "YOUR_NEW_USER_ID"
+}
+```
+
+The token should be included in the header of the request.
+
+## Change Points
+
+To change your points, send a POST request to the `/user/change_points` endpoint with the following JSON:
+
+```json
+{
+    "points": "YOUR_NEW_POINTS"
 }
 ```
 

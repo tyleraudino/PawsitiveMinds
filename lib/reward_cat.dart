@@ -5,18 +5,16 @@ import 'user_provider.dart';
 class ImageButton extends StatefulWidget {
   final String trueLabel = "";
   final String falseLabel = "Locked";
-  final int userPoints;
   final int requiredPoints;
   final String imagePath;
   final VoidCallback onPressed;
-  final ValueChanged<int> onPointsUpdated;
+  final UserProvider userProvider;
 
   const ImageButton({
     required this.imagePath,
-    required this.userPoints,
     required this.requiredPoints,
     required this.onPressed,
-    required this.onPointsUpdated,
+    required this.userProvider,
     Key? key,
   }) : super(key: key);
 
@@ -65,6 +63,30 @@ class _ImageButtonState extends State<ImageButton> {
         ],
       ),
     );
+  } 
+
+  void _onPressedAction() async {
+    if (widget.userProvider.user.points >= widget.requiredPoints) {
+      setState(() {
+        unlocked = true;
+      });
+
+      await widget.userProvider.updateAndSyncPoints(
+          widget.userProvider.user.points - widget.requiredPoints
+      );
+
+      widget.onPressed();
+      // updates most recent cat
+
+      if (mounted) {
+        Provider.of<UserProvider>(context, listen: false)
+            .updateRecentCatImagePath(widget.imagePath);
+        Navigator.of(context).pop();
+      }
+    } else {
+      Navigator.of(context).pop();
+        _showErrorDialog(context);
+    }
   }
 
   void _showUnlockDialog(BuildContext context) {
@@ -76,7 +98,7 @@ class _ImageButtonState extends State<ImageButton> {
         return AlertDialog(
           title: const Text('Are you sure you want to unlock this cat?'),
           content: Text(
-              'You need ${widget.requiredPoints} points to unlock this cat. You have ${widget.userPoints} points.'),
+              'You need ${widget.requiredPoints} points to unlock this cat. You have ${widget.userProvider.user.points} points.'),
           actions: [
             TextButton(
               onPressed: () {
@@ -85,22 +107,7 @@ class _ImageButtonState extends State<ImageButton> {
               child: const Text('Cancel'),
             ),
             TextButton(
-              onPressed: () {
-                if (widget.userPoints >= widget.requiredPoints) {
-                  setState(() {
-                    unlocked = true;
-                  });
-                  widget.onPointsUpdated(widget.userPoints - widget.requiredPoints);
-                  widget.onPressed();
-                  // updates most recent cat
-                  Provider.of<UserProvider>(context, listen: false)
-                      .updateRecentCatImagePath(widget.imagePath);
-                  Navigator.of(context).pop();
-                } else {
-                  Navigator.of(context).pop();
-                  _showErrorDialog(context);
-                }
-              },
+              onPressed: () => _onPressedAction(),
               child: const Text('Unlock'),
             ),
           ],

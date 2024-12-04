@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'user_class.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 class UserProvider with ChangeNotifier {
   User _user = User(
@@ -39,6 +41,30 @@ class UserProvider with ChangeNotifier {
   void updatePoints(int points) {
     _user.points = points;
     notifyListeners();
+  }
+
+  Future<int> updateAndSyncPoints(int points) async {
+    _user.points = points;
+
+    final String apiUrl = 'http://127.0.0.1:8000/user/change_points';
+    final Map<String, dynamic> pointsData = {
+      'points': points,
+    };
+
+    final response = await http.post(
+      Uri.parse(apiUrl),
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ${user.token}',
+      },
+      body: json.encode(pointsData),
+    );
+
+    Map<String, dynamic> data = json.decode(response.body);
+
+    notifyListeners();
+
+    return response.statusCode;
   }
 
   void updateToken(String token) {
