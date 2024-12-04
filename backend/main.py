@@ -42,15 +42,19 @@ class Item(BaseModel):
     name: str
     description: str
 
+
 # for goal data
 class Goal(BaseModel):
     title: str
     description: str
+    points: int
+
 
 # for user login data
 class UserLogin(BaseModel):
     username: str
     password: str
+
 
 # for user registration
 class UserRegister(UserLogin):
@@ -58,27 +62,32 @@ class UserRegister(UserLogin):
     first_name: str
     last_name: str
 
+
 # for updating password
 class UpdatePassword(BaseModel):
     password: str
 
+
 class UpdateEmail(BaseModel):
     email: str
 
+
 class UpdateUsername(BaseModel):
     username: str
+
 
 # for user token
 class UserToken(BaseModel):
     object_id: str
     expires_in: datetime.datetime
 
+
 # for updating goals
 class UpdateGoal(BaseModel):
     title: Optional[str] = None
     description: Optional[str] = None
 
-    
+
 def generate_jwt(object_id: ObjectId) -> str:
     to_encode = {
         "object_id": str(object_id),
@@ -114,6 +123,7 @@ def decode_jwt(token: Annotated[str, Depends(oauth2_scheme)]) -> UserToken:
 # use this whenever you want to get the current user
 UserDep = Annotated[UserToken, Depends(decode_jwt)]
 
+
 # registers user
 @app.post("/user/register")
 async def register_user(user: UserRegister):
@@ -130,6 +140,7 @@ async def register_user(user: UserRegister):
         }
     else:
         raise HTTPException(status_code=400, detail="User registration failed")
+
 
 # login user
 @app.post("/user/login")
@@ -179,6 +190,7 @@ async def change_email(user: UserDep, data: UpdateEmail):
     await user_collection.update_one({"_id": user_data["_id"]}, {"$set": {"email": data.email}})
     return {"message": "Email changed successfully!"}
 
+
 # change username
 @app.post("/user/change_username")
 async def change_username(user: UserDep, data: UpdateUsername):
@@ -214,6 +226,7 @@ async def get_goals():
         goals.append(document)
     return goals
 
+
 # post request to add data
 @app.post("/data")
 async def post_data(item: Item):
@@ -223,6 +236,7 @@ async def post_data(item: Item):
         return {"message": "Data inserted successfully!"}
     else:
         raise HTTPException(status_code=400, detail="Data insertion failed")
+
 
 # post request to create a goal
 @app.post("/goals/")
@@ -234,6 +248,7 @@ async def create_goal(goal: Goal):
     else:
         raise HTTPException(status_code=400, detail="Goal creation failed")
     
+
 # post request to delete a goal
 @app.delete("/goals/{goal_id}")
 async def delete_goal(goal_id: str):
@@ -251,6 +266,7 @@ async def delete_goal(goal_id: str):
     else:
         raise HTTPException(status_code=404, detail="Goal not found.")
     
+
 # request to modify goals
 @app.put("/goals/{goal_id}")
 async def update_goal(goal_id: str, goal: UpdateGoal):
