@@ -23,7 +23,7 @@ class ProfilePage extends StatelessWidget {
               children: [
                 Center(
                   child: Image.asset(
-                    'assets/profilecat.gif',
+                    'assets/catGif.gif',
                     width: 250,
                     height: 250,
                     fit: BoxFit.contain,

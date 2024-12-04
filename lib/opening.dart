@@ -24,13 +24,12 @@ class OpeningPage extends StatelessWidget {
               ),
                Center(
                   child: Image.asset(
-                    'assets/profilecat.gif',
+                    'assets/catGif.gif',
                     width: 250,
                     height: 250,
                     fit: BoxFit.contain,
                   ),
                 ),
-              SizedBox(height: 20), 
               ElevatedButton(
                 onPressed: () {
                   Navigator.pushReplacement(
