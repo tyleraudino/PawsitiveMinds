@@ -7,7 +7,7 @@ class RewardsPage extends StatefulWidget {
 }
 
 class _RewardsPageState extends State<RewardsPage> {
-  int userPoints = 100; // hardcode, get from backend
+  int userPoints = 100; 
 
   @override
   Widget build(BuildContext context) {
