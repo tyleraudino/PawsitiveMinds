@@ -1,29 +1,51 @@
 import 'package:flutter/material.dart';
-import 'main.dart'; 
-import 'opening.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:provider/provider.dart';
 import 'user_provider.dart';
+import "userprofile.dart";
 
-class LoginPage extends StatefulWidget {
-  const LoginPage({super.key});
+class ChangePassword extends StatefulWidget {
+  const ChangePassword({super.key});
 
   @override
-  _LoginPageState createState() => _LoginPageState();
+  _ChangePasswordState createState() => _ChangePasswordState();
 }
 
-class _LoginPageState extends State<LoginPage> {
-  final TextEditingController _usernameController = TextEditingController();
+class _ChangePasswordState extends State<ChangePassword> {
   final TextEditingController _passwordController = TextEditingController();
+  final TextEditingController _confirmController = TextEditingController();
 
-  void _login(UserProvider provider) async {
-    String username = _usernameController.text;
+  void PasswordsError() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Error'),
+          content: Text('Passwords do not match. Please try again.'),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(); // Close the dialog
+              },
+              child: Text('OK'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _change_password(UserProvider provider) async {
     String password = _passwordController.text;
+    
+    if (password != _confirmController.text) {
+      PasswordsError();
+      return;
+    }
 
-    final String apiUrl = 'http://127.0.0.1:8000/user/login';
-    final Map<String, dynamic> loginData = {
-      'username': username,
+    final String apiUrl = 'http://127.0.0.1:8000/user/change_password';
+    final Map<String, dynamic> passwordData = {
       'password': password,
     };
 
@@ -31,35 +53,25 @@ class _LoginPageState extends State<LoginPage> {
       Uri.parse(apiUrl),
       headers: {
         'Content-Type': 'application/json',
+        'Authorization': 'Bearer ${provider.user.token}',
       },
-      body: json.encode(loginData),
+      body: json.encode(passwordData),
     );
 
     Map<String, dynamic> data = json.decode(response.body);
 
     if (response.statusCode == 200) { // demo info
-      provider.updateUsername(username);
-      String firstname = data['first_name'];
-      String lastname = data['last_name'];
-      String email = data['email'];
-      int points = data['points'] ?? 0;
-      provider.updateFirstName(firstname);
-      provider.updateLastName(lastname);
-      provider.updateEmail(email);
-      provider.updatePoints(points);
-      provider.updateToken(data['token']);
-      
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => MainPage()), // to home page
+        MaterialPageRoute(builder: (context) => ProfilePage()), // to home page
       );
     } else {
       showDialog(
         context: context,
         builder: (context) {
           return AlertDialog(
-            title: Text('Login Failed'),
-            content: Text('Invalid username or password.'),
+            title: Text('Changing Password Failed'),
+            content: Text('An error occurred while password username.'),
             actions: [
               TextButton(
                 onPressed: () {
@@ -88,14 +100,6 @@ class _LoginPageState extends State<LoginPage> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             TextField(
-              controller: _usernameController,
-              decoration: InputDecoration(
-                labelText: 'Username',
-                border: OutlineInputBorder(),
-              ),
-            ),
-            SizedBox(height: 16),
-            TextField(
               controller: _passwordController,
               obscureText: true, // hides password input
               decoration: InputDecoration(
@@ -104,9 +108,18 @@ class _LoginPageState extends State<LoginPage> {
               ),
             ),
             SizedBox(height: 16),
+            TextField(
+              controller: _confirmController,
+              obscureText: true, // hides password input
+              decoration: InputDecoration(
+                labelText: 'Confirm Password',
+                border: OutlineInputBorder(),
+              ),
+            ),
+            SizedBox(height: 16),
             ElevatedButton(
-              onPressed: () => _login(userProvider), // calls the login function when pressed
-              child: Text('Login'),
+              onPressed: () => _change_password(userProvider), // calls the login function when pressed
+              child: Text('Change Password'),
             ),
             SizedBox(height: 16),
             ElevatedButton(
@@ -114,7 +127,7 @@ class _LoginPageState extends State<LoginPage> {
                 // Navigate to OpeningPage on Go back button press
                 Navigator.pushReplacement(
                   context,
-                  MaterialPageRoute(builder: (context) => OpeningPage()),
+                  MaterialPageRoute(builder: (context) => ProfilePage()),
                 );
               },
               child: Text('Go back'),

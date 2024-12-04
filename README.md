@@ -1,16 +1,17 @@
 # Pawsitive Minds
 
-A new Flutter project.
+A cat-themed goal-setting app to empower you to self-motivate yourself. Unlock cats with the points you recieve as you complete your goals! 
 
-## Getting Started
+## To run the application
 
-This project is a starting point for a Flutter application.
+1. Install flutter: https://docs.flutter.dev/get-started/install
 
-A few resources to get you started if this is your first Flutter project:
+2. Open a terminal and start the frontend with the command: `flutter run`
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+3. Open another terminal and start the backend:
+    1. `d backend`
+    2. On Mac: `source venv/bin/activate`, or on Windows: ` `
+    3. Install the required packages using `pip install -r requirements.txt`
+    4. Run the server using `fastapi dev main.py`
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+

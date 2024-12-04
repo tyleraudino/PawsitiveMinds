@@ -87,7 +87,7 @@ Future<void> createGoal(Goal goal) async {
       'title': goal.title, 
       'description': goal.description, 
       'reccurence' : goal.recurrence,
-      // 'endDate' : goal.endDate, - need to figure how to encode this
+      'endDate' : goal.endDate, 
       'reminders' : goal.reminders,
       'points' : goal.points,
     };
@@ -145,6 +145,37 @@ Future<void> deleteGoal(Goal? goal) async {
     print('Error: $e');
   }
 
+}
+
+Future<void> updateGoal(Goal? goal) async {
+  if (goal != null){
+    final Map<String, dynamic> goalData = {
+          'title': goal.title, 
+          'description': goal.description, 
+          'reccurence' : goal.recurrence,
+           //'endDate' : goal.endDate,
+          'reminders' : goal.reminders,
+          'points' : goal.points,
+    };
+  }
+  //do backend stuff here 
+  if (goal == null) {
+    print("Goal is null. Cannot update.");
+    return;
+  }
+
+  final String apiUrl = 'http://127.0.0.1:8000/goals/${goal.id}'; 
+
+  try {
+    final response = await http.put(
+      Uri.parse(apiUrl),
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    );
+  } catch (e) {
+    print('Error: $e');
+}
 }
 
 class GoalsPage extends StatefulWidget {
@@ -254,6 +285,7 @@ class _EditGoalPageState extends State<EditGoalPage> {
         endDate: endDate
       ),
     );
+    
   }
 
   void confirmDeleteGoal() {
@@ -354,7 +386,13 @@ class _EditGoalPageState extends State<EditGoalPage> {
             Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
                 ElevatedButton(
-                  onPressed: saveGoal,
+                  onPressed: (){
+                    if(widget.isEditing){
+                    saveGoal();
+                    updateGoal(widget.goal); //Call update to backend
+                  } else {
+                    saveGoal();
+                  }},
                   style: ElevatedButton.styleFrom(backgroundColor: const Color.fromRGBO(255, 198, 163, 1)),
                   child: Text(widget.isEditing ? 'Save' : 'Create', style: const TextStyle(fontWeight: FontWeight.bold),),
                 ),
@@ -398,13 +436,39 @@ class _CompleteGoalPageState extends State<CompleteGoalPage> {
     super.dispose();
   }
 
-  void saveCompletion() {
+  void saveCompletion(UserProvider provider) async {
     widget.goal.completeGoal();
-    Navigator.of(context).pop();
+    int result = await provider.updateAndSyncPoints(provider.user.points + widget.goal.points);
+
+    if (mounted) {
+      if (result != 200) {
+        showDialog(
+          context: context,
+          builder: (context) {
+            return AlertDialog(
+              title: const Text('Error'),
+              content: const Text('An error occurred while updating points.'),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                  child: const Text('OK'),
+                ),
+              ],
+            );
+          },
+        );
+      } else {
+        Navigator.of(context).pop();
+      }
+    }
   }
 
   @override
   Widget build(BuildContext context) {
+    return Consumer<UserProvider>(
+      builder: (context, userProvider, child) {
     return Scaffold(
       appBar: AppBar(),
       body: Padding(
@@ -417,12 +481,13 @@ class _CompleteGoalPageState extends State<CompleteGoalPage> {
             ),
             SizedBox(height: 20),
             ElevatedButton(
-              onPressed: saveCompletion,
+              onPressed: () => saveCompletion(userProvider),
               child: const Text("Complete Goal"),
             ),
           ],
         ),
       ),
     );
+  });
   }
 }

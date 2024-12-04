@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 import 'main.dart'; 
 import 'opening.dart'; 
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+import 'package:provider/provider.dart';
+import 'user_provider.dart';
 
 class SignupPage extends StatefulWidget {
   const SignupPage({super.key});
@@ -15,6 +19,8 @@ class _SignupPageState extends State<SignupPage> {
   final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _confirmPassController = TextEditingController();
+  final TextEditingController _firstNameController = TextEditingController();
+  final TextEditingController _lastNameController = TextEditingController();
 
   void PasswordsError() {
     showDialog(
@@ -36,8 +42,73 @@ class _SignupPageState extends State<SignupPage> {
     );
   }
 
+  void _register(UserProvider provider) async {
+    String email = _emailController.text; // todo - make backend changes to store this
+    String username = _usernameController.text;
+    String password = _passwordController.text;
+    String firstname = _firstNameController.text;
+    String lastname = _lastNameController.text;
+
+    if (password != _confirmPassController.text) {
+      PasswordsError();
+      return;
+    }
+
+    final String apiUrl = 'http://127.0.0.1:8000/user/register';
+    final Map<String, dynamic> registerData = {
+      'username': username,
+      'first_name': firstname,
+      'last_name': lastname,
+      'email': email,
+      'password': password,
+    };
+
+    final response = await http.post(
+      Uri.parse(apiUrl),
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: json.encode(registerData),
+    );
+
+    Map<String, dynamic> data = json.decode(response.body);
+
+    if (response.statusCode == 200) { // demo info
+      provider.updateUsername(username);
+      provider.updateFirstName(firstname);
+      provider.updateLastName(lastname);
+      provider.updateEmail(email);
+      provider.updateToken(data['token']);
+      
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => MainPage()), // to home page
+      );
+    } else {
+      showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            title: Text('Registering Failed'),
+            content: Text('This username has already been registered.'),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                child: Text('OK'),
+              ),
+            ],
+          );
+        },
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    return Consumer<UserProvider>(
+      builder: (context, userProvider, child) {
     return Scaffold(
       appBar: AppBar(
         title: Text('Pawsitive Minds'),
@@ -51,6 +122,22 @@ class _SignupPageState extends State<SignupPage> {
               controller: _emailController,
               decoration: InputDecoration(
                 labelText: 'Email',
+                border: OutlineInputBorder(),
+              ),
+            ),
+            SizedBox(height: 16),
+            TextField(
+              controller: _firstNameController,
+              decoration: InputDecoration(
+                labelText: 'First Name',
+                border: OutlineInputBorder(),
+              ),
+            ),
+            SizedBox(height: 16),
+            TextField(
+              controller: _lastNameController,
+              decoration: InputDecoration(
+                labelText: 'Last Name',
                 border: OutlineInputBorder(),
               ),
             ),
@@ -82,17 +169,7 @@ class _SignupPageState extends State<SignupPage> {
             ),
             SizedBox(height: 16),
             ElevatedButton(
-              onPressed: () {
-                if (_passwordController.text == _confirmPassController.text) {
-                  Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(builder: (context) => MainPage()),
-                  );
-                }
-                else {
-                  PasswordsError();
-                }
-              },
+              onPressed: () => _register(userProvider),
               child: Text('Create Account'),
             ),
             SizedBox(height: 16),
@@ -110,5 +187,5 @@ class _SignupPageState extends State<SignupPage> {
         ),
       ),
     );
-  }
+  });}
 }
