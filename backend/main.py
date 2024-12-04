@@ -50,6 +50,17 @@ class Goal(BaseModel):
     points: int
 
 
+# to store rewards
+class Reward(BaseModel):
+    image_path: str
+    unlocked: bool
+
+
+# to update rewards
+class UpdateReward(BaseModel):
+    unlocked: bool
+
+
 # for user login data
 class UserLogin(BaseModel):
     username: str
@@ -303,3 +314,22 @@ async def update_goal(goal_id: str, goal: UpdateGoal):
             raise HTTPException(status_code=404, detail="Goal not found or no changes made")
     else:
         raise HTTPException(status_code=400, detail="No valid fields provided for update")
+    
+    
+# pre-defined rewards stored in the database
+@app.on_event("startup")
+async def populate_rewards():
+    # check if rewards collection exists
+    if await db["rewards"].count_documents({}) == 0:
+        predefined_rewards = [
+            {"rewardcat1": "/assets/rewardcat1.png", "unlocked": False},
+            {"rewardcat2": "/assets/rewardcat2.png", "unlocked": False},
+            {"rewardcat3": "/assets/rewardcat3.png", "unlocked": False},
+            {"rewardcat4": "/assets/rewardcat4.png", "unlocked": False},
+            {"rewardcat5": "/assets/rewardcat5.png", "unlocked": False},
+            {"rewardcat6": "/assets/rewardcat6.png", "unlocked": False},
+            {"rewardcat7": "/assets/rewardcat7.png", "unlocked": False},
+            {"rewardcat8": "/assets/rewardcat8.png", "unlocked": False},
+            {"rewardcat9": "/assets/rewardcat9.png", "unlocked": False},
+        ]
+        await db["rewards"].insert_many(predefined_rewards)
