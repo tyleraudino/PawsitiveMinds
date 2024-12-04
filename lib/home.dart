@@ -146,8 +146,18 @@ class HomePage extends StatelessWidget {
                               textAlign: TextAlign.left,
                             ),
                             Container(
-                              height: 210, // Set a fixed height for the ListView
-                              // child
+                              height: 210, 
+                              child: userProvider.recentCatImagePath.isEmpty
+                                  // if no cats have been unlocked
+                                  ? const Center(child: Text('No recent cat unlocked'))
+                                  : Center(
+                                      // if a cat has been unlocked, displays the most recent
+                                      child: Image.asset(
+                                        userProvider.recentCatImagePath,
+                                        width: 200,
+                                        height: 200,
+                                      ),
+                                    ),
                             ),
                           ],
                         ),

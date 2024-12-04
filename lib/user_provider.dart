@@ -10,7 +10,11 @@ class UserProvider with ChangeNotifier {
     token: 'test',
   );
 
+  String _recentCatImagePath = ''; // Store the path of the most recent cat image
+
   User get user => _user;
+
+  String get recentCatImagePath => _recentCatImagePath; // Getter for the recent cat image path
 
   void updateFirstName(String firstName) {
     _user.firstname = firstName;
@@ -40,5 +44,11 @@ class UserProvider with ChangeNotifier {
   void updateToken(String token) {
     _user.token = token;
     notifyListeners();
+  }
+
+  // to update image path of most recently unlocked cat
+  void updateRecentCatImagePath(String imagePath) {
+    _recentCatImagePath = imagePath;
+    notifyListeners(); 
   }
 }
