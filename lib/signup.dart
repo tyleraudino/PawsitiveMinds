@@ -27,8 +27,8 @@ class _SignupPageState extends State<SignupPage> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text('Error'),
-          content: Text('Passwords do not match. Please try again.'),
+          title: const Text('Error'),
+          content: const Text('Passwords do not match. Please try again.'),
           actions: [
             TextButton(
               onPressed: () {
@@ -79,6 +79,8 @@ class _SignupPageState extends State<SignupPage> {
       provider.updateLastName(lastname);
       provider.updateEmail(email);
       provider.updateToken(data['token']);
+      provider.updateGoals([]); // initialize goals to empty
+      provider.updateAndSyncPoints(0); // initilize points to 0
       
       Navigator.pushReplacement(
         context,
@@ -89,14 +91,14 @@ class _SignupPageState extends State<SignupPage> {
         context: context,
         builder: (context) {
           return AlertDialog(
-            title: Text('Registering Failed'),
-            content: Text('This username has already been registered.'),
+            title: const Text('Registering Failed'),
+            content: const Text('This username has already been registered.'),
             actions: [
               TextButton(
                 onPressed: () {
                   Navigator.of(context).pop();
                 },
-                child: Text('OK'),
+                child: const Text('OK'),
               ),
             ],
           );
@@ -111,7 +113,7 @@ class _SignupPageState extends State<SignupPage> {
       builder: (context, userProvider, child) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Pawsitive Minds'),
+        title: const Text('Pawsitive Minds'),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -120,59 +122,59 @@ class _SignupPageState extends State<SignupPage> {
           children: [
             TextField(
               controller: _emailController,
-              decoration: InputDecoration(
+              decoration: const InputDecoration(
                 labelText: 'Email',
                 border: OutlineInputBorder(),
               ),
             ),
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
             TextField(
               controller: _firstNameController,
-              decoration: InputDecoration(
+              decoration: const InputDecoration(
                 labelText: 'First Name',
                 border: OutlineInputBorder(),
               ),
             ),
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
             TextField(
               controller: _lastNameController,
-              decoration: InputDecoration(
+              decoration: const InputDecoration(
                 labelText: 'Last Name',
                 border: OutlineInputBorder(),
               ),
             ),
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
             TextField(
               controller: _usernameController,
-              decoration: InputDecoration(
+              decoration: const InputDecoration(
                 labelText: 'Username',
                 border: OutlineInputBorder(),
               ),
             ),
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
             TextField(
               controller: _passwordController,
               obscureText: true, // hides password input
-              decoration: InputDecoration(
+              decoration: const InputDecoration(
                 labelText: 'Password',
                 border: OutlineInputBorder(),
               ),
             ),
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
             TextField(
               controller: _confirmPassController,
               obscureText: true,
-              decoration: InputDecoration(
+              decoration: const InputDecoration(
                 labelText: 'Confirm Password',
                 border: OutlineInputBorder(),
               ),
             ),
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
             ElevatedButton(
               onPressed: () => _register(userProvider),
-              child: Text('Create Account'),
+              child: const Text('Create Account'),
             ),
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
             ElevatedButton(
               onPressed: () {
                   // Navigate to MainPage on Login button press
@@ -181,7 +183,7 @@ class _SignupPageState extends State<SignupPage> {
                     MaterialPageRoute(builder: (context) => OpeningPage()),
                   );
                 },
-              child: Text('Go Back'),
+              child: const Text('Go Back'),
             ),
           ],
         ),

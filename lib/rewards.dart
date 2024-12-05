@@ -16,7 +16,7 @@ class _RewardsPageState extends State<RewardsPage> {
       builder: (context, userProvider, child) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Rewards Page'),
+        title: const Text('Rewards Page'),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
