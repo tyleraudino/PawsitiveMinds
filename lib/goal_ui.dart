@@ -92,7 +92,7 @@ Widget buildGoalListView(List<Goal> goals, void Function(void Function()) setSta
 }
 
 Future<void> createGoal(Goal goal, UserProvider provider) async {
-    final String apiUrl = 'http://127.0.0.1:8000/goals/'; // to be updated
+    final String apiUrl = 'http://127.0.0.1:8000/goals/'; 
     final Map<String, dynamic> goalData = {
       'title': goal.title, 
       'description': goal.description, 

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'reward_cat.dart';
+import 'rewards_class.dart';
 import 'package:provider/provider.dart';
 import 'user_provider.dart';
 

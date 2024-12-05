@@ -32,8 +32,6 @@ class _ChangeEmailState extends State<ChangeEmail> {
       body: json.encode(emailData),
     );
 
-    Map<String, dynamic> data = json.decode(response.body);
-
     if (response.statusCode == 200) { // demo info
       provider.updateEmail(email);
       

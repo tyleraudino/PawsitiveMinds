@@ -3,6 +3,7 @@ import 'user_class.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'goal_class.dart';
+import 'rewards_class.dart';
 
 class UserProvider with ChangeNotifier {
   User _user = User(
@@ -49,6 +50,13 @@ class UserProvider with ChangeNotifier {
     print("updating goals: $goals");
     print("goals updated: ${_user.userGoals}");
 
+    notifyListeners();
+  }
+
+  void UpdateRewards(List<Rewards> rewards) {
+    print("updating rewards");
+    _user.userRewards = rewards;
+    print("finished");
     notifyListeners();
   }
 
