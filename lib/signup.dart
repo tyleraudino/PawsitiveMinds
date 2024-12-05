@@ -31,14 +31,14 @@ class _SignupPageState extends State<SignupPage> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text('Error'),
+          title: const Text('Error'),
           content: Text(message),
           actions: [
             TextButton(
               onPressed: () {
                 Navigator.of(context).pop();
               },
-              child: Text('OK'),
+              child: const Text('OK'),
             ),
           ],
         );
@@ -84,6 +84,8 @@ class _SignupPageState extends State<SignupPage> {
         provider.updateLastName(lastname);
         provider.updateEmail(email);
         provider.updateToken(data['token']);
+        provider.updateAndSyncPoints(0);
+        provider.updateGoals([]);
 
         Navigator.pushReplacement(
           context,
@@ -107,7 +109,7 @@ class _SignupPageState extends State<SignupPage> {
       builder: (context, userProvider, child) {
         return Scaffold(
           appBar: AppBar(
-            title: Text('Pawsitive Minds'),
+            title: const Text('Pawsitive Minds'),
           ),
           body: RawKeyboardListener(
             focusNode: _focusNode,
@@ -121,7 +123,7 @@ class _SignupPageState extends State<SignupPage> {
                   children: [
                     TextFormField(
                       controller: _emailController,
-                      decoration: InputDecoration(
+                      decoration: const InputDecoration(
                         labelText: 'Email',
                         border: OutlineInputBorder(),
                       ),
@@ -135,7 +137,7 @@ class _SignupPageState extends State<SignupPage> {
                     SizedBox(height: 16),
                     TextFormField(
                       controller: _firstNameController,
-                      decoration: InputDecoration(
+                      decoration: const InputDecoration(
                         labelText: 'First Name',
                         border: OutlineInputBorder(),
                       ),
@@ -149,7 +151,7 @@ class _SignupPageState extends State<SignupPage> {
                     SizedBox(height: 16),
                     TextFormField(
                       controller: _lastNameController,
-                      decoration: InputDecoration(
+                      decoration: const InputDecoration(
                         labelText: 'Last Name',
                         border: OutlineInputBorder(),
                       ),
@@ -163,7 +165,7 @@ class _SignupPageState extends State<SignupPage> {
                     SizedBox(height: 16),
                     TextFormField(
                       controller: _usernameController,
-                      decoration: InputDecoration(
+                      decoration: const InputDecoration(
                         labelText: 'Username',
                         border: OutlineInputBorder(),
                       ),
@@ -178,7 +180,7 @@ class _SignupPageState extends State<SignupPage> {
                     TextFormField(
                       controller: _passwordController,
                       obscureText: true,
-                      decoration: InputDecoration(
+                      decoration: const InputDecoration(
                         labelText: 'Password',
                         border: OutlineInputBorder(),
                       ),
@@ -193,7 +195,7 @@ class _SignupPageState extends State<SignupPage> {
                     TextFormField(
                       controller: _confirmPassController,
                       obscureText: true,
-                      decoration: InputDecoration(
+                      decoration: const InputDecoration(
                         labelText: 'Confirm Password',
                         border: OutlineInputBorder(),
                       ),
@@ -204,12 +206,12 @@ class _SignupPageState extends State<SignupPage> {
                         return null;
                       },
                     ),
-                    SizedBox(height: 16),
+                    const SizedBox(height: 16),
                     ElevatedButton(
                       onPressed: () => _register(userProvider),
                       child: Text('Create Account'),
                     ),
-                    SizedBox(height: 16),
+                    const SizedBox(height: 16),
                     ElevatedButton(
                       onPressed: () {
                         Navigator.pushReplacement(
@@ -217,7 +219,7 @@ class _SignupPageState extends State<SignupPage> {
                           MaterialPageRoute(builder: (context) => OpeningPage()),
                         );
                       },
-                      child: Text('Go Back'),
+                      child: const Text('Go Back'),
                     ),
                   ],
                 ),
