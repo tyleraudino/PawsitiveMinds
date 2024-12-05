@@ -36,7 +36,7 @@ class _SignupPageState extends State<SignupPage> {
           actions: [
             TextButton(
               onPressed: () {
-                Navigator.of(context).pop(); // Close the dialog
+                Navigator.of(context).pop();
               },
               child: Text('OK'),
             ),
@@ -55,7 +55,7 @@ class _SignupPageState extends State<SignupPage> {
       String lastname = _lastNameController.text;
 
       if (password != _confirmPassController.text) {
-        _showErrorDialog('Passwords do not match. Please try again.');
+        _showErrorDialog('Please enter passwords that match.');
         return;
       }
 
@@ -92,8 +92,6 @@ class _SignupPageState extends State<SignupPage> {
       } else {
         _showErrorDialog('This username has already been registered.');
       }
-    } else {
-      _showErrorDialog('Please fill out all fields before submitting.');
     }
   }
 

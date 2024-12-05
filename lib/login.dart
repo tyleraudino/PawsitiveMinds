@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
-import 'main.dart';
+import 'main.dart'; 
 import 'opening.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:provider/provider.dart';
 import 'user_provider.dart';
-import 'package:flutter/services.dart'; // For RawKeyboardListener and LogicalKeyboardKey
+import 'goal_class.dart';
+import 'user_class.dart';
+import 'package:flutter/services.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -59,24 +61,45 @@ class _LoginPageState extends State<LoginPage> {
         body: json.encode(loginData),
       );
 
+      Map<String, dynamic> data = json.decode(response.body);
+
       if (response.statusCode == 200) {
-        Map<String, dynamic> data = json.decode(response.body);
+        List<Goal> loadedGoals = await getGoals(username, data['token']);
         provider.updateUsername(username);
-        provider.updateFirstName(data['first_name']);
-        provider.updateLastName(data['last_name']);
-        provider.updateEmail(data['email']);
-        provider.updatePoints(data['points'] ?? 0);
+        String firstname = data['first_name'];
+        String lastname = data['last_name'];
+        String email = data['email'];
+        int points = data['points'] ?? 0;
+        provider.updateFirstName(firstname);
+        provider.updateLastName(lastname);
+        provider.updateEmail(email);
+        provider.updatePoints(points);
         provider.updateToken(data['token']);
+        provider.updateGoals(loadedGoals);
 
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(builder: (context) => MainPage()),
         );
       } else {
-        _showErrorDialog('Invalid username or password.');
-      }
-    } else {
-      _showErrorDialog('Please fill out all fields.');
+        showDialog(
+          context: context,
+          builder: (context) {
+            return AlertDialog(
+              title: Text('Login Failed'),
+              content: Text('Invalid username or password.'),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                  child: Text('OK'),
+                ),
+              ],
+            );
+          },
+        ); 
+      } 
     }
   }
 
