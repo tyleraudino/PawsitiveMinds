@@ -49,7 +49,7 @@ Widget buildGoalListView(List<Goal> goals, void Function(void Function()) setSta
                       ),
                     ).then((completionConfirmation) {
                       setStateCallback(() {
-                          goals = sortGoalsByNextDueDate(goals); // Re-sort after updating
+                          goals = sortGoalsByNextDueDate(goals);
                         });
                     });
                   },
@@ -70,7 +70,7 @@ Widget buildGoalListView(List<Goal> goals, void Function(void Function()) setSta
                       if (updatedGoal != null && updatedGoal != false) {
                         setStateCallback(() {
                           goals[goals.indexOf(goal)] = updatedGoal;
-                          goals = sortGoalsByNextDueDate(goals); // Re-sort after updating
+                          goals = sortGoalsByNextDueDate(goals);
                         });
                       } else if (updatedGoal == false) {
                         // to handle updating
@@ -344,13 +344,13 @@ class _EditGoalPageState extends State<EditGoalPage> {
         content: const Text('Are you sure you want to delete this goal?'),
         actions: [
           TextButton(
-            onPressed: () => Navigator.of(context).pop(), // Dismiss dialog
+            onPressed: () => Navigator.of(context).pop(), // remove dialog
             child: const Text('Cancel'),
           ),
           TextButton(
             onPressed: () {
-              Navigator.of(context).pop(); // Dismiss dialog
-              deleteGoal(widget.goal, userProvider); // Call the delete function
+              Navigator.of(context).pop();
+              deleteGoal(widget.goal, userProvider); 
               Navigator.of(context).pop(false); // go to goals page
             },
             style: TextButton.styleFrom(foregroundColor: Color.fromARGB(255, 0, 0, 0), backgroundColor: const Color.fromRGBO(222, 144, 144, 1)),
