@@ -61,11 +61,13 @@ class Goal(BaseModel):
 class Reward(BaseModel):
     image_path: str
     unlocked: bool
+    user_id: str = None
 
 
 # to update rewards
 class UpdateReward(BaseModel):
     unlocked: bool
+    user_id: str = None
 
 
 # for user login data
@@ -356,6 +358,7 @@ async def populate_rewards():
             {"rewardcat9": "/assets/rewardcat9.png", "unlocked": False},
         ]
         await db["rewards"].insert_many(predefined_rewards)
+
 
 @app.put("/rewards/{reward_id}")
 async def toggle_reward_unlocked(reward_id: str, user: UserDep):

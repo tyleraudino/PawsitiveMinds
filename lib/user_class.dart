@@ -1,4 +1,5 @@
 import 'goal_class.dart';
+import 'rewards_class.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
@@ -10,6 +11,7 @@ String email;
 String token;
 int points;
 List<Goal> userGoals = [];
+List<Rewards> userRewards = [];
 
 User({required this.username, required this.firstname, required this.lastname, required this.email, required this.token, this.points = 0});
 
