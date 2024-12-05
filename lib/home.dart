@@ -36,7 +36,6 @@ Widget buildTodayGoalList(List<Goal> goals) {
 }
 
 class HomePage extends StatelessWidget {
-  @override
   Widget build(BuildContext context) {
     return Consumer<UserProvider>(
       builder: (context, userProvider, child) {

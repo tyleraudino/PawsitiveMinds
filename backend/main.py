@@ -1,6 +1,6 @@
 import datetime
 from typing import Optional, Annotated
-
+import logging
 import argon2
 import jwt
 import motor.motor_asyncio
@@ -8,7 +8,7 @@ from bson import ObjectId
 from fastapi import FastAPI, HTTPException, Depends, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security.utils import get_authorization_scheme_param
-from pydantic import BaseModel
+from pydantic import BaseModel, Field, ConfigDict
 
 ph = argon2.PasswordHasher()
 app = FastAPI()
@@ -27,6 +27,9 @@ app.add_middleware(
     allow_headers=["*"],  # allows all headers
 )
 
+logging.basicConfig(level=logging.DEBUG)
+logger = logging.getLogger(__name__)
+
 # mongo connection
 client = motor.motor_asyncio.AsyncIOMotorClient("mongodb://localhost:27017/")
 db = client["your_database"]
@@ -43,11 +46,15 @@ class Item(BaseModel):
     description: str
 
 
+
 # for goal data
 class Goal(BaseModel):
     title: str
     description: str
     points: int
+    user_id: str = None
+    recurrence: str
+    lastCompleted: Optional[str]
 
 
 # to store rewards
@@ -101,6 +108,11 @@ class UserToken(BaseModel):
 class UpdateGoal(BaseModel):
     title: Optional[str] = None
     description: Optional[str] = None
+    points: Optional[int] = None
+    user_id: Optional[str] = None
+    recurrence: Optional[str] = None
+    lastCompleted: Optional[str] = None
+
 
 
 def generate_jwt(object_id: ObjectId) -> str:
@@ -246,14 +258,14 @@ async def delete_user(user: UserDep):
 
 # get request to fetch all goals
 @app.get("/goals/")
-async def get_goals():
+async def get_goals(user: UserDep):
     goals = []
-    cursor = collection.find({})
+    cursor = collection.find({"user_id": user.object_id})
     async for document in cursor:
-        document.pop("_id")  # Remove MongoDB's internal ID field
+        # Convert ObjectId to string for JSON serialization
+        document['_id'] = str(document['_id'])
         goals.append(document)
     return goals
-
 
 # post request to add data
 @app.post("/data")
@@ -268,8 +280,9 @@ async def post_data(item: Item):
 
 # post request to create a goal
 @app.post("/goals/")
-async def create_goal(goal: Goal):
+async def create_goal(user: UserDep, goal: Goal):
     new_goal = goal.dict()
+    new_goal['user_id'] = user.object_id  
     result = await collection.insert_one(new_goal)
     if result.inserted_id:
         return {"message": "Goal created successfully!", "goal_id": str(result.inserted_id)}
@@ -279,7 +292,7 @@ async def create_goal(goal: Goal):
 
 # post request to delete a goal
 @app.delete("/goals/{goal_id}")
-async def delete_goal(goal_id: str):
+async def delete_goal(user: UserDep, goal_id: str):
     try:
         object_id = ObjectId(goal_id) # converts goal_id to MongoDB's ObjectID
         print(f"Converted goal_id to ObjectId: {object_id}")
@@ -297,17 +310,27 @@ async def delete_goal(goal_id: str):
 
 # request to modify goals
 @app.put("/goals/{goal_id}")
-async def update_goal(goal_id: str, goal: UpdateGoal):
+async def update_goal(user: UserDep, goal_id: str, goal: UpdateGoal):
     try:
-        object_id = ObjectId(goal_id)  # Convert goal_id to ObjectId
+        object_id = ObjectId(goal_id)
     except Exception:
         raise HTTPException(status_code=400, detail="Invalid goal ID format")
+
+    # First, verify the goal belongs to the user
+    existing_goal = await collection.find_one({"_id": object_id, "user_id": user.object_id})
+    if not existing_goal:
+        raise HTTPException(status_code=404, detail="Goal unauthorized")
 
     # Create dictionary of updates, excluding None values
     updated_data = {k: v for k, v in goal.dict().items() if v is not None}
 
     if updated_data:
-        result = await collection.update_one({"_id": object_id}, {"$set": updated_data})
+        logger.debug(f"Updating goal with data: {updated_data}")
+        result = await collection.update_one(
+            {"_id": object_id, "user_id": user.object_id}, 
+            {"$set": updated_data} 
+        )
+        logger.debug(f"Update operation result: {result.raw_result}")
         if result.modified_count == 1:
             return {"message": "Goal updated successfully!"}
         else:
@@ -315,7 +338,7 @@ async def update_goal(goal_id: str, goal: UpdateGoal):
     else:
         raise HTTPException(status_code=400, detail="No valid fields provided for update")
     
-    
+
 # pre-defined rewards stored in the database
 @app.on_event("startup")
 async def populate_rewards():
@@ -333,3 +356,26 @@ async def populate_rewards():
             {"rewardcat9": "/assets/rewardcat9.png", "unlocked": False},
         ]
         await db["rewards"].insert_many(predefined_rewards)
+
+@app.put("/rewards/{reward_id}")
+async def toggle_reward_unlocked(reward_id: str, user: UserDep):
+    try:
+        object_id = ObjectId(reward_id)
+    except Exception:
+        raise HTTPException(status_code=400, detail="Invalid reward ID format")
+
+    # find reward
+    reward = await db["rewards"].find_one({"_id": object_id})
+    if not reward:
+        raise HTTPException(status_code=404, detail="Reward not found")
+
+    # toggle 'unlocked' to True
+    updated = await db["rewards"].update_one(
+        {"_id": object_id},
+        {"$set": {"unlocked": True}}
+    )
+
+    if updated.modified_count == 1:
+        return {"message": f"Reward {reward_id} unlocked successfully!"}
+    else:
+        raise HTTPException(status_code=500, detail="Failed to update reward")
