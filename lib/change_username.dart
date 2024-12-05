@@ -108,7 +108,6 @@ class _ChangeUsernameState extends State<ChangeUsername> {
             SizedBox(height: 16),
             ElevatedButton(
               onPressed: () {
-                // Navigate to OpeningPage on Go back button press
                 Navigator.pushReplacement(
                   context,
                   MaterialPageRoute(builder: (context) => ProfilePage()),

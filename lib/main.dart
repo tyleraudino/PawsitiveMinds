@@ -28,16 +28,16 @@ class MyApp extends StatelessWidget {
         colorSchemeSeed: const Color.fromRGBO(200, 215, 243, 1.0),
         canvasColor: const Color.fromRGBO(200, 215, 243, 1.0),
         navigationBarTheme: NavigationBarThemeData(
-          indicatorColor: Colors.transparent, // Remove the indicator color
-          labelBehavior: NavigationDestinationLabelBehavior.alwaysHide, // Always hide the labels
+          indicatorColor: Colors.transparent,
+          labelBehavior: NavigationDestinationLabelBehavior.alwaysHide, 
           iconTheme: WidgetStateProperty.resolveWith<IconThemeData>((states) {
             if (states.contains(WidgetState.selected)) {
               return const IconThemeData(
-                color: Colors.grey, // Set selected icon color to transparent
+                color: Colors.grey,
               );
             }
             return const IconThemeData(
-              color: Colors.black, // Set unselected icon color
+              color: Colors.black,
             );
           }),
         ),

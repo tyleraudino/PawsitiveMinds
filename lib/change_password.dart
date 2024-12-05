@@ -124,7 +124,6 @@ class _ChangePasswordState extends State<ChangePassword> {
             SizedBox(height: 16),
             ElevatedButton(
               onPressed: () {
-                // Navigate to OpeningPage on Go back button press
                 Navigator.pushReplacement(
                   context,
                   MaterialPageRoute(builder: (context) => ProfilePage()),
