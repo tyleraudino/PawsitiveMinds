@@ -21,29 +21,31 @@ String getInitials () {
   return initials;
 }
 
-Future<void> loadGoals() async {
-    try {
-      this.userGoals = await getGoals(this.username);
-    } catch (e) {
-      throw Exception('Failed to load user goals: $e');
-    }
-  }
-
 }
 
-// determine if we need this
-Future<List<Goal>> getGoals(String username) async {
-  final String apiUrl = 'http://127.0.0.1:8000/goals/$username'; // Assuming the endpoint takes a username parameter
+// load goals from backend
+Future<List<Goal>> getGoals(String username, String token) async {
+  final String apiUrl = 'http://127.0.0.1:8000/goals/';
 
   try {
-    final response = await http.get(Uri.parse(apiUrl));
+   
+    final response = await http.get(
+      Uri.parse(apiUrl),
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ${token}',
+      },
+    );
+    
     if (response.statusCode == 200) {
       List<dynamic> goalsJson = json.decode(response.body);
+      
       return goalsJson.map((json) => Goal.fromJson(json)).toList();
+    } else {
+      throw Exception('Failed to load goals. Status code: ${response.statusCode}');
     }
   } catch (e) {
     throw Exception('Failed to load goals: $e');
   }
-  throw Exception('Failed to load goals');
 }
 
