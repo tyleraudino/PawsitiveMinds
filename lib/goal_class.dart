@@ -1,11 +1,11 @@
 class Goal {
-  late String? id;
+  late String? id = null;
   late String title;
-  late String description;
+  late String description = " ";
   late String recurrence; 
   late int recurrenceInterval; // for custom recurrence
-  late DateTime? endDate; // init end date to null for reminders with no end date
-  late DateTime? lastCompleted;
+  late DateTime? endDate = null;// init end date to null for reminders with no end date
+  late DateTime? lastCompleted = null;
   late List<DateTime> completionDates = [];
   late bool reminders = false;
   late int points;
@@ -13,16 +13,18 @@ class Goal {
   Goal({this.id, required this.title, required this.description, required this.points, this.recurrence = "Daily", this.recurrenceInterval = 1, this.endDate, this.lastCompleted});
 
   Goal.fromJson(Map<String, dynamic> json) {
-    id = json['id'];
-    title = json['title'];
-    description = json['description'];
-    recurrence = json['recurrence'];
-    recurrenceInterval = json['recurrenceInterval'];
+    id = json['_id'];
+    title = json['title'] ?? '';
+    description = json['description'] ?? '';
+    points = json['points'] ?? 0;
+    recurrence = json['recurrence'] ?? "Daily";
+    recurrenceInterval = json['recurrenceInterval'] ?? 1;
     endDate = json['endDate'] != null ? DateTime.parse(json['endDate']) : null;
     lastCompleted = json['lastCompleted'] != null ? DateTime.parse(json['lastCompleted']) : null;
-    completionDates = json['completionDates'] != null ? json['completionDates'].map<DateTime>((date) => DateTime.parse(date)).toList() : [];
-    reminders = json['reminders'];
-    points = json['points'];
+    completionDates = (json['completionDates'] as List<dynamic>?)
+        ?.map((e) => DateTime.parse(e as String))
+        .toList() ?? [];
+    reminders = json['reminders'] ?? false;
   }
 
   void completeGoal(){
@@ -88,11 +90,13 @@ class Goal {
   bool checkIfCompleted(){
     bool completed = false;
 
+    if(lastCompleted == null){
+      return completed;
+    }
     //check if last completed date = today
     if (lastCompleted?.day == DateTime.now().day){
       completed = true;
     }
-
     return completed;
   }
 }

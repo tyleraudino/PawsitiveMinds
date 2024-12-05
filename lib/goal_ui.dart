@@ -11,6 +11,8 @@ Widget buildGoalListView(List<Goal> goals, void Function(void Function()) setSta
   final groupedGoals = groupGoalsByDueStatus(goals);
   final sortedDueStatuses = groupedGoals.keys.toList();
 
+  return Consumer<UserProvider>(
+      builder: (context, userProvider, child)  {
   return ListView.builder(
     itemCount: groupedGoals.length,
     itemBuilder: (context, index) {
@@ -58,6 +60,8 @@ Widget buildGoalListView(List<Goal> goals, void Function(void Function()) setSta
                         builder: (context) => EditGoalPage(goal: goal, isEditing: true),
                       ),
                     ).then((updatedGoal) {
+                      updateGoalBackend(updatedGoal, userProvider);
+
                       if (updatedGoal != null && updatedGoal != false) {
                         setStateCallback(() {
                           goals[goals.indexOf(goal)] = updatedGoal;
@@ -79,35 +83,40 @@ Widget buildGoalListView(List<Goal> goals, void Function(void Function()) setSta
       );
     },
   );
+});
 }
 
-Future<void> createGoal(Goal goal) async {
+Future<void> createGoal(Goal goal, UserProvider provider) async {
     final String apiUrl = 'http://127.0.0.1:8000/goals/'; // to be updated
     final Map<String, dynamic> goalData = {
       'title': goal.title, 
       'description': goal.description, 
-      'reccurence' : goal.recurrence,
-      'endDate' : goal.endDate, 
-      'reminders' : goal.reminders,
+      'recurrence' : goal.recurrence,
       'points' : goal.points,
+      'lastCompleted' : goal.lastCompleted
     };
 
     try {
       final response = await http.post(
         Uri.parse(apiUrl),
         headers: {
-          'Content-Type': 'application/json',
-        },
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ${provider.user.token}',
+      },
         body: json.encode(goalData),
       );
 
-      if (response.statusCode == 200) { // checks for 201 created
+      if (response.statusCode == 200) { // checks for 200 created
         print('Goal created successfully: ${response.body}');
         final responseData = json.decode(response.body);
         final String goalId = responseData['goal_id'];  
         goal.id = goalId; // sets goal object's id after mongo creates one
         print('Goal created successfully with ID: $goalId');
+        //update goals now
+        List<Goal> updatedGoals = await getGoals(provider.user.username, provider.user.token);
+        provider.updateGoals(updatedGoals);
       } else {
+        print("Failed: ${response.body}");
         print('Failed to create goal: ${response.statusCode}');
       }
     } catch (e) {
@@ -115,16 +124,17 @@ Future<void> createGoal(Goal goal) async {
     }
   }
 
-Future<void> deleteGoal(Goal? goal) async {
+Future<void> deleteGoal(Goal? goal, UserProvider provider) async {
   //function to delete goal from backend
   if (goal != null){
     final Map<String, dynamic> goalData = {
           'title': goal.title, 
           'description': goal.description, 
-          'reccurence' : goal.recurrence,
+          'recurrence' : goal.recurrence,
           'endDate' : goal.endDate,
           'reminders' : goal.reminders,
           'points' : goal.points,
+          'lastCompleted' : goal.lastCompleted
     };
   }
   //do backend stuff here 
@@ -139,30 +149,35 @@ Future<void> deleteGoal(Goal? goal) async {
       Uri.parse(apiUrl),
       headers: {
         'Content-Type': 'application/json',
+        'Authorization': 'Bearer ${provider.user.token}',
       },
     );
+
+    //update goals now
+    List<Goal> updatedGoals = await getGoals(provider.user.username, provider.user.token);
+    provider.updateGoals(updatedGoals);
   } catch (e) {
     print('Error: $e');
   }
 
 }
 
-Future<void> updateGoal(Goal? goal) async {
-  if (goal != null){
-    final Map<String, dynamic> goalData = {
-          'title': goal.title, 
-          'description': goal.description, 
-          'reccurence' : goal.recurrence,
-           //'endDate' : goal.endDate,
-          'reminders' : goal.reminders,
-          'points' : goal.points,
-    };
-  }
+Future<void> updateGoalBackend(Goal? goal, UserProvider provider) async {
   //do backend stuff here 
   if (goal == null) {
     print("Goal is null. Cannot update.");
     return;
   }
+
+  final Map<String, dynamic> newgoalData = {
+        'title': goal.title, 
+        'description': goal.description, 
+        'recurrence' : goal.recurrence,
+        'points' : goal.points,
+        'lastCompleted' : goal.lastCompleted
+  };
+
+  print("new goal data: $newgoalData");
 
   final String apiUrl = 'http://127.0.0.1:8000/goals/${goal.id}'; 
 
@@ -171,8 +186,20 @@ Future<void> updateGoal(Goal? goal) async {
       Uri.parse(apiUrl),
       headers: {
         'Content-Type': 'application/json',
+        'Authorization': 'Bearer ${provider.user.token}',
       },
+      body: json.encode(newgoalData),
     );
+    if (response.statusCode == 200) { // checks for 200 created
+        print('Goal updated successfully: ${response.body}');
+    } else {
+       print("Failed to update: ${response.body}");
+      print('Failed to update goal: ${response.statusCode}');
+    }
+
+    //update goals now
+    List<Goal> updatedGoals = await getGoals(provider.user.username, provider.user.token);
+    provider.updateGoals(updatedGoals);
   } catch (e) {
     print('Error: $e');
 }
@@ -184,10 +211,40 @@ class GoalsPage extends StatefulWidget {
 }
 
 class _GoalsPageState extends State<GoalsPage>  {
+  bool _isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadGoals();
+  }
+// load user goals from backend
+   Future<void> _loadGoals() async {
+    final userProvider = Provider.of<UserProvider>(context, listen: false);
+    try {
+      List<Goal> loadedGoals = await getGoals(userProvider.user.username, userProvider.user.token);
+      userProvider.updateGoals(loadedGoals);
+      
+      setState(() {
+        _isLoading = false;
+      });
+    } catch (e) {
+      // Handle error
+      setState(() {
+        _isLoading = false;
+      });
+      // Optionally show an error message
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to load goals: $e'))
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Consumer<UserProvider>(
-      builder: (context, userProvider, child) {
+      builder: (context, userProvider, child)  {
+        //then sort
         List<Goal> sortedGoals = sortGoalsByNextDueDate(userProvider.user.userGoals);
       return Scaffold(
         appBar: AppBar(
@@ -203,14 +260,12 @@ class _GoalsPageState extends State<GoalsPage>  {
                   Navigator.push(
                       context,
                       MaterialPageRoute(builder: (context) => EditGoalPage())
-                  ).then((newGoal) {
+                  ).then((newGoal) async {
                       if (newGoal != null) {
-                        //for debugging data
-                        setState(() {
-                          userProvider.user.userGoals.add(newGoal);
-                        });
+                        
                         //for backend
-                        createGoal(newGoal);
+                        createGoal(newGoal, userProvider);
+                        
                       }        
                     });
                   // open goal creation page here
@@ -239,6 +294,7 @@ class _EditGoalPageState extends State<EditGoalPage> {
   String selectedFrequency = "Daily";
   DateTime? endDate;
   bool reminders = false;
+  String? goalId;
 
   Widget buildFrequencyButton(String frequency) {
     return ElevatedButton(
@@ -263,6 +319,7 @@ class _EditGoalPageState extends State<EditGoalPage> {
     pointsController = TextEditingController(text: widget.goal != null ? widget.goal!.points.toString() : '0',);
     selectedFrequency = widget.goal?.recurrence ?? 'Daily';
     endDate = widget.goal?.endDate;
+    goalId = widget.goal?.id;
   }
 
   @override
@@ -282,13 +339,25 @@ class _EditGoalPageState extends State<EditGoalPage> {
         description: descriptionController.text,
         points: points,
         recurrence: selectedFrequency,
-        endDate: endDate
       ),
     );
-    
   }
 
-  void confirmDeleteGoal() {
+  void updateGoal(String id) {
+    int points = int.tryParse(pointsController.text) ?? 0;
+    Navigator.pop(
+      context,
+      Goal(
+        id: id,
+        title: titleController.text,
+        description: descriptionController.text,
+        points: points,
+        recurrence: selectedFrequency,
+      ),
+    );
+  }
+
+  void confirmDeleteGoal(UserProvider userProvider) {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -302,7 +371,7 @@ class _EditGoalPageState extends State<EditGoalPage> {
           TextButton(
             onPressed: () {
               Navigator.of(context).pop(); // Dismiss dialog
-              deleteGoal(widget.goal); // Call the delete function
+              deleteGoal(widget.goal, userProvider); // Call the delete function
               Navigator.of(context).pop(false); // go to goals page
             },
             style: TextButton.styleFrom(foregroundColor: Color.fromARGB(255, 0, 0, 0), backgroundColor: const Color.fromRGBO(222, 144, 144, 1)),
@@ -315,6 +384,8 @@ class _EditGoalPageState extends State<EditGoalPage> {
 
   @override
   Widget build(BuildContext context) {
+    return Consumer<UserProvider>(
+      builder: (context, userProvider, child) {
     return Scaffold(
       appBar: AppBar( title: Text(widget.isEditing ? 'Edit Goal' : 'Create Goal'),),
       body: Padding(
@@ -387,18 +458,19 @@ class _EditGoalPageState extends State<EditGoalPage> {
               children: [
                 ElevatedButton(
                   onPressed: (){
-                    if(widget.isEditing){
-                    saveGoal();
-                    updateGoal(widget.goal); //Call update to backend
-                  } else {
-                    saveGoal();
-                  }},
+                    if(widget.isEditing == false){
+                      saveGoal();
+                    }else if (goalId != null){
+                      updateGoal(goalId!);
+                    }
+                    
+                  },
                   style: ElevatedButton.styleFrom(backgroundColor: const Color.fromRGBO(255, 198, 163, 1)),
                   child: Text(widget.isEditing ? 'Save' : 'Create', style: const TextStyle(fontWeight: FontWeight.bold),),
                 ),
                 if(widget.isEditing && (widget.goal != null ))
                   ElevatedButton(
-                  onPressed: confirmDeleteGoal,
+                  onPressed: () => confirmDeleteGoal(userProvider),
                   style: ElevatedButton.styleFrom(backgroundColor: const Color.fromRGBO(255, 198, 163, 1)),
                   child: Text(widget.isEditing ? 'Delete' : 'Cancel', style: const TextStyle(fontWeight: FontWeight.bold)),
                   )
@@ -409,8 +481,8 @@ class _EditGoalPageState extends State<EditGoalPage> {
         ),
       ),
     );
-  }
-}
+  });
+  }}
 
 class CompleteGoalPage extends StatefulWidget{
   final Goal goal;

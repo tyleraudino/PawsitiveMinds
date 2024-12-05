@@ -5,6 +5,8 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:provider/provider.dart';
 import 'user_provider.dart';
+import 'goal_class.dart';
+import 'user_class.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -38,6 +40,7 @@ class _LoginPageState extends State<LoginPage> {
     Map<String, dynamic> data = json.decode(response.body);
 
     if (response.statusCode == 200) { // demo info
+      List<Goal> loadedGoals = await getGoals(username, data['token']);
       provider.updateUsername(username);
       String firstname = data['first_name'];
       String lastname = data['last_name'];
@@ -48,6 +51,7 @@ class _LoginPageState extends State<LoginPage> {
       provider.updateEmail(email);
       provider.updatePoints(points);
       provider.updateToken(data['token']);
+      provider.updateGoals(loadedGoals);
       
       Navigator.pushReplacement(
         context,

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'user_class.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'goal_class.dart';
 
 class UserProvider with ChangeNotifier {
   User _user = User(
@@ -40,6 +41,14 @@ class UserProvider with ChangeNotifier {
 
   void updatePoints(int points) {
     _user.points = points;
+    notifyListeners();
+  }
+
+  void updateGoals(List<Goal> goals){
+    _user.userGoals = goals;
+    print("updating goals: $goals");
+    print("goals updated: ${_user.userGoals}");
+
     notifyListeners();
   }
 
