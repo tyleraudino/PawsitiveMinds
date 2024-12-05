@@ -49,7 +49,7 @@ class Goal {
 
     switch (recurrence) {
       case "Daily":
-        nextDueDate = referenceDate.add(Duration(days: recurrenceInterval));
+        nextDueDate = referenceDate;
         while (nextDueDate.isBefore(DateTime.now())) {
           nextDueDate = nextDueDate.add(Duration(days: recurrenceInterval));
         }

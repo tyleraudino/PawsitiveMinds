@@ -528,7 +528,7 @@ class _CompleteGoalPageState extends State<CompleteGoalPage> {
           children: [
             TextField(
               controller: journalController,
-              decoration: const InputDecoration(labelText: 'Title'),
+              decoration: const InputDecoration(labelText: 'Optional journal entry'),
             ),
             SizedBox(height: 20),
             ElevatedButton(

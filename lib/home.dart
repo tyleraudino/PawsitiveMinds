@@ -8,7 +8,7 @@ Widget buildTodayGoalList(List<Goal> goals) {
   final groupedGoals = groupGoalsByDueStatus(goals);
 
   // Ensure that dailyGoals is not null
-  List<Goal>? dailyGoals = groupedGoals["Due tomorrow"];
+  List<Goal>? dailyGoals = groupedGoals["Due today"];
   if (dailyGoals == null || dailyGoals.isEmpty) {
     // Return a message if there are no goals due tomorrow
     return const Center(child: Text('No goals due today'));
