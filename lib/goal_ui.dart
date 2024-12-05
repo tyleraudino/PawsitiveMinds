@@ -6,6 +6,11 @@ import 'goal_class.dart';
 import 'user_class.dart';
 import 'package:provider/provider.dart';
 import 'user_provider.dart';
+import 'package:intl/intl.dart';
+
+String formatDate(DateTime date) {
+  return DateFormat('yyyy-MM-ddTHH:mm:ss.sssZ').format(date.toUtc());
+}
 
 Widget buildGoalListView(List<Goal> goals, void Function(void Function()) setStateCallback) {
   final groupedGoals = groupGoalsByDueStatus(goals);
@@ -93,7 +98,7 @@ Future<void> createGoal(Goal goal, UserProvider provider) async {
       'description': goal.description, 
       'recurrence' : goal.recurrence,
       'points' : goal.points,
-      'lastCompleted' : goal.lastCompleted
+      'lastCompleted': goal.lastCompleted != null ? formatDate(goal.lastCompleted!) : null,
     };
 
     try {
@@ -114,6 +119,7 @@ Future<void> createGoal(Goal goal, UserProvider provider) async {
         print('Goal created successfully with ID: $goalId');
         //update goals now
         List<Goal> updatedGoals = await getGoals(provider.user.username, provider.user.token);
+        print(updatedGoals);
         provider.updateGoals(updatedGoals);
       } else {
         print("Failed: ${response.body}");
@@ -134,7 +140,7 @@ Future<void> deleteGoal(Goal? goal, UserProvider provider) async {
           'endDate' : goal.endDate,
           'reminders' : goal.reminders,
           'points' : goal.points,
-          'lastCompleted' : goal.lastCompleted
+          'lastCompleted': goal.lastCompleted != null ? formatDate(goal.lastCompleted!) : null,
     };
   }
   //do backend stuff here 
@@ -155,6 +161,7 @@ Future<void> deleteGoal(Goal? goal, UserProvider provider) async {
 
     //update goals now
     List<Goal> updatedGoals = await getGoals(provider.user.username, provider.user.token);
+    print(updatedGoals);
     provider.updateGoals(updatedGoals);
   } catch (e) {
     print('Error: $e');
@@ -174,7 +181,7 @@ Future<void> updateGoalBackend(Goal? goal, UserProvider provider) async {
         'description': goal.description, 
         'recurrence' : goal.recurrence,
         'points' : goal.points,
-        'lastCompleted' : goal.lastCompleted
+        'lastCompleted': goal.lastCompleted != null ? formatDate(goal.lastCompleted!) : null,
   };
 
   print("new goal data: $newgoalData");
@@ -199,6 +206,7 @@ Future<void> updateGoalBackend(Goal? goal, UserProvider provider) async {
 
     //update goals now
     List<Goal> updatedGoals = await getGoals(provider.user.username, provider.user.token);
+    print(updatedGoals);
     provider.updateGoals(updatedGoals);
   } catch (e) {
     print('Error: $e');
@@ -211,35 +219,6 @@ class GoalsPage extends StatefulWidget {
 }
 
 class _GoalsPageState extends State<GoalsPage>  {
-  bool _isLoading = true;
-
-  @override
-  void initState() {
-    super.initState();
-    _loadGoals();
-  }
-// load user goals from backend
-   Future<void> _loadGoals() async {
-    final userProvider = Provider.of<UserProvider>(context, listen: false);
-    try {
-      List<Goal> loadedGoals = await getGoals(userProvider.user.username, userProvider.user.token);
-      userProvider.updateGoals(loadedGoals);
-      
-      setState(() {
-        _isLoading = false;
-      });
-    } catch (e) {
-      // Handle error
-      setState(() {
-        _isLoading = false;
-      });
-      // Optionally show an error message
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to load goals: $e'))
-      );
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     return Consumer<UserProvider>(

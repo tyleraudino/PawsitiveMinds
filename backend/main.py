@@ -54,6 +54,8 @@ class Goal(BaseModel):
     points: int
     user_id: str = None
     recurrence: str
+    lastCompleted: Optional[str]
+
 
 # for user login data
 class UserLogin(BaseModel):
@@ -98,6 +100,7 @@ class UpdateGoal(BaseModel):
     points: Optional[int] = None
     user_id: Optional[str] = None
     recurrence: Optional[str] = None
+    lastCompleted: Optional[str] = None
 
 
 
